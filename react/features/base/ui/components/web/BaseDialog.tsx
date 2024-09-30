@@ -62,7 +62,7 @@ const useStyles = makeStyles()((theme) => {
             display: "flex",
             flexDirection: "column",
             height: "auto",
-            // minHeight: '200px',
+            // minHeight: "200px",
             maxHeight: "80vh",
             marginTop: "64px",
             animation: `${keyframes`
