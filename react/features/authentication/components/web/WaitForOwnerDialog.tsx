@@ -1,17 +1,16 @@
-import React, { PureComponent } from 'react';
-import { WithTranslation } from 'react-i18next';
-import { connect } from 'react-redux';
+import React, { PureComponent } from "react";
+import { WithTranslation } from "react-i18next";
+import { connect } from "react-redux";
 
-import { IReduxState, IStore } from '../../../app/types';
-import { translate } from '../../../base/i18n/functions';
-import Dialog from '../../../base/ui/components/web/Dialog';
-import { cancelWaitForOwner, login } from '../../actions.web';
+import { IReduxState, IStore } from "../../../app/types";
+import { translate } from "../../../base/i18n/functions";
+import Dialog from "../../../base/ui/components/web/Dialog";
+import { cancelWaitForOwner, login } from "../../actions.web";
 
 /**
  * The type of the React {@code Component} props of {@link WaitForOwnerDialog}.
  */
 interface IProps extends WithTranslation {
-
     /**
      * Whether to show alternative cancel button text.
      */
@@ -25,7 +24,7 @@ interface IProps extends WithTranslation {
     /**
      * Redux store dispatch method.
      */
-    dispatch: IStore['dispatch'];
+    dispatch: IStore["dispatch"];
 }
 
 /**
@@ -75,23 +74,24 @@ class WaitForOwnerDialog extends PureComponent<IProps> {
      * @inheritdoc
      */
     render() {
-        const {
-            t
-        } = this.props;
+        const { t } = this.props;
 
         return (
             <Dialog
-                cancel = {{ translationKey:
-                        this.props._alternativeCancelText ? 'dialog.WaitingForHostButton' : 'dialog.Cancel' }}
-                disableBackdropClose = { true }
-                hideCloseButton = { true }
-                ok = { this.props._hideLoginButton ? { hidden: true,
-                    disabled: true } : { translationKey: 'dialog.IamHost' } }
-                onCancel = { this._onCancelWaitForOwner }
-                onSubmit = { this._onIAmHost }
-                titleKey = { t('dialog.WaitingForHostTitle') }>
+                ok={{ hidden: true }}
+                cancel={{ hidden: true }}
+                // ok = { this.props._hideLoginButton ? { hidden: true,
+                //     disabled: true } : { translationKey: 'dialog.IamHost' } }
+                // cancel = {{ translationKey:
+                //         this.props._alternativeCancelText ? 'dialog.WaitingForHostButton' : 'dialog.Cancel' }}
+                disableBackdropClose={true}
+                hideCloseButton={true}
+                // onCancel = { this._onCancelWaitForOwner }
+                // onSubmit = { this._onIAmHost }
+                titleKey={t("dialog.WaitingForHostTitle")}
+            >
                 <span>
-                    { this.props._hideLoginButton ? t('dialog.WaitForHostNoAuthMsg') : t('dialog.WaitForHostMsg') }
+                    {this.props._hideLoginButton ? t("dialog.WaitForHostNoAuthMsg") : t("dialog.WaitForHostMsg")}
                 </span>
             </Dialog>
         );
@@ -107,12 +107,12 @@ class WaitForOwnerDialog extends PureComponent<IProps> {
  * @returns {IProps}
  */
 function mapStateToProps(state: IReduxState) {
-    const { membersOnly, lobbyWaitingForHost } = state['features/base/conference'];
-    const { hideLoginButton } = state['features/base/config'];
+    const { membersOnly, lobbyWaitingForHost } = state["features/base/conference"];
+    const { hideLoginButton } = state["features/base/config"];
 
     return {
         _alternativeCancelText: membersOnly && lobbyWaitingForHost,
-        _hideLoginButton: hideLoginButton
+        _hideLoginButton: hideLoginButton,
     };
 }
 
