@@ -4,7 +4,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { IReduxState } from '../../../app/types';
 import { translate } from '../../../base/i18n/functions';
-import { getLocalParticipant } from '../../../base/participants/functions';
+import { getLocalParticipant, isLocalParticipantModerator } from '../../../base/participants/functions';
 import { withPixelLineHeight } from '../../../base/styles/functions.web';
 import Tabs from '../../../base/ui/components/web/Tabs';
 import { arePollsDisabled } from '../../../conference/functions.any';
@@ -19,6 +19,7 @@ import DisplayNameForm from './DisplayNameForm';
 import KeyboardAvoider from './KeyboardAvoider';
 import MessageContainer from './MessageContainer';
 import MessageRecipient from './MessageRecipient';
+import Switch from './Switch';
 
 interface IProps extends AbstractProps {
 
@@ -31,6 +32,11 @@ interface IProps extends AbstractProps {
      * True if the chat window should be rendered.
      */
     _isOpen: boolean;
+
+    /**
+     * True if the chat window should be rendered.
+     */
+    _isChatOpenForOthers: boolean;
 
     /**
      * True if the polls feature is enabled.
@@ -58,6 +64,11 @@ interface IProps extends AbstractProps {
      * Function to toggle the chat window.
      */
     _onToggleChat: Function;
+   
+    /**
+     * Function to toggle the chat so that others can send messages as well.
+     */
+    _onToggleChatForOthers: Function;
 
     /**
      * Function to display the chat tab.
@@ -77,6 +88,8 @@ interface IProps extends AbstractProps {
      * Whether or not to block chat access with a nickname input form.
      */
     _showNamePrompt: boolean;
+
+    _isUserModerator: boolean;
 }
 
 const useStyles = makeStyles()(theme => {
@@ -139,6 +152,13 @@ const useStyles = makeStyles()(theme => {
         pollsPanel: {
             // extract header + tabs height
             height: 'calc(100% - 110px)'
+        },
+
+        switchContainer: {
+            display: 'flex',
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "20px",
         }
     };
 });
@@ -146,6 +166,7 @@ const useStyles = makeStyles()(theme => {
 const Chat = ({
     _isModal,
     _isOpen,
+    _isChatOpenForOthers,
     _isPollsEnabled,
     _isPollsTabFocused,
     _messages,
@@ -156,6 +177,7 @@ const Chat = ({
     _onToggleChatTab,
     _onTogglePollsTab,
     _showNamePrompt,
+    _isUserModerator,
     dispatch,
     t
 }: IProps) => {
@@ -206,6 +228,8 @@ const Chat = ({
         dispatch(setIsPollsTabFocused(id !== CHAT_TABS.CHAT));
     }, []);
 
+    console.log("_isChatOpenForOthers ==== ", _isChatOpenForOthers);
+
     /**
      * Returns a React Element for showing chat messages and a form to send new
      * chat messages.
@@ -227,11 +251,22 @@ const Chat = ({
                     id = { `${CHAT_TABS.CHAT}-panel` }
                     role = 'tabpanel'
                     tabIndex = { 0 }>
+
+                    {_isUserModerator && <div  className = { cx( classes.switchContainer ) }>
+                        <div>Turn ON / OFF Chat for Students</div>
+
+                        <Switch isChecked={_isChatOpenForOthers} onChange={(value: boolean) => onSendMessage(value ? "ENABLE_CHAT" : "DISABLE_CHAT")} />
+                    </div>}
+
                     <MessageContainer
                         messages = { _messages } />
                     <MessageRecipient />
-                    <ChatInput
-                        onSend = { onSendMessage } />
+                    {_isUserModerator ? (
+                        <ChatInput onSend={onSendMessage} />
+                        ) : (
+                        _isChatOpenForOthers && <ChatInput onSend={onSendMessage} />
+                        )
+                    }                
                 </div>
                 {_isPollsEnabled && (
                     <>
@@ -314,19 +349,26 @@ const Chat = ({
  * }}
  */
 function _mapStateToProps(state: IReduxState, _ownProps: any) {
-    const { isOpen, isPollsTabFocused, messages, nbUnreadMessages } = state['features/chat'];
+
+    const isUserModerator = isLocalParticipantModerator(state)
+    
+    console.log("state === ", state, "moderator === ", isUserModerator);
+
+    const { isOpen, isPollsTabFocused, messages, nbUnreadMessages, isChatOpenForOthers } = state['features/chat'];
     const { nbUnreadPolls } = state['features/polls'];
     const _localParticipant = getLocalParticipant(state);
 
     return {
         _isModal: window.innerWidth <= SMALL_WIDTH_THRESHOLD,
         _isOpen: isOpen,
+        _isChatOpenForOthers: isChatOpenForOthers,
         _isPollsEnabled: !arePollsDisabled(state),
         _isPollsTabFocused: isPollsTabFocused,
         _messages: messages,
         _nbUnreadMessages: nbUnreadMessages,
         _nbUnreadPolls: nbUnreadPolls,
-        _showNamePrompt: !_localParticipant?.name
+        _showNamePrompt: !_localParticipant?.name,
+        _isUserModerator: isUserModerator
     };
 }
 

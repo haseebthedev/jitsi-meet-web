@@ -2,7 +2,7 @@
 import VideoLayout from '../../../modules/UI/videolayout/VideoLayout';
 import { IStore } from '../app/types';
 
-import { OPEN_CHAT } from './actionTypes';
+import { OPEN_CHAT, CHAT_OPEN_FOR_OTHERS } from './actionTypes';
 import { closeChat } from './actions.any';
 
 export * from './actions.any';
@@ -22,6 +22,24 @@ export function openChat(participant?: Object, _disablePolls?: boolean) {
         dispatch({
             participant,
             type: OPEN_CHAT
+        });
+    };
+}
+
+/**
+ * Displays the chat panel.
+ *
+ * @param {Object} value - The boolean status for chat open for other participants.
+ * @returns {{
+ *    type: CHAT_OPEN_FOR_OTHERS
+*     isChatOpenForOthers: Boolean,
+* }}
+*/
+export function openChatForOtherParticipants(value: boolean) {
+    return function(dispatch: IStore['dispatch']) {
+        dispatch({
+            type: CHAT_OPEN_FOR_OTHERS,
+            isChatOpenForOthers: value
         });
     };
 }

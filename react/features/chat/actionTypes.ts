@@ -135,3 +135,12 @@ export const SET_IS_POLL_TAB_FOCUSED = 'SET_IS_POLL_TAB_FOCUSED';
   * }
   */
  export const REMOVE_LOBBY_CHAT_PARTICIPANT = 'REMOVE_LOBBY_CHAT_PARTICIPANT';
+
+ /**
+  * The type of action allows to enable / disable chat for others.
+  *
+  * {
+  *     type: CHAT_OPEN_FOR_OTHERS
+  * }
+  */
+ export const CHAT_OPEN_FOR_OTHERS = 'CHAT_OPEN_FOR_OTHERS';

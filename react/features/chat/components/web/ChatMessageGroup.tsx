@@ -62,6 +62,19 @@ const ChatMessageGroup = ({ className = '', messages }: IProps) => {
         return null;
     }
 
+    const formatMessage = (message: IMessage) => {
+        switch(message.message) {
+            case "ENABLE_CHAT":
+                message.message = "Tutor has enabled the chat."
+                return message;
+            case "DISABLE_CHAT":
+                message.message = "Tutor has disabled the chat."
+                return message;
+            default:
+                return message;
+        }
+    }
+
     return (
         <div className = { clsx(classes.groupContainer, className) }>
             <Avatar
@@ -72,7 +85,7 @@ const ChatMessageGroup = ({ className = '', messages }: IProps) => {
                 {messages.map((message, i) => (
                     <ChatMessage
                         key = { i }
-                        message = { message }
+                        message = { formatMessage(message)  }
                         shouldDisplayChatMessageMenu = { false }
                         showDisplayName = { i === 0 }
                         showTimestamp = { i === messages.length - 1 }

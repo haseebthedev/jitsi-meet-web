@@ -12,12 +12,14 @@ import {
     SET_IS_POLL_TAB_FOCUSED,
     SET_LOBBY_CHAT_ACTIVE_STATE,
     SET_LOBBY_CHAT_RECIPIENT,
-    SET_PRIVATE_MESSAGE_RECIPIENT
+    SET_PRIVATE_MESSAGE_RECIPIENT,
+    CHAT_OPEN_FOR_OTHERS
 } from './actionTypes';
 import { IMessage } from './types';
 
 const DEFAULT_STATE = {
     isOpen: false,
+    isChatOpenForOthers: true,
     isPollsTabFocused: false,
     lastReadMessage: undefined,
     messages: [],
@@ -31,6 +33,7 @@ const DEFAULT_STATE = {
 export interface IChatState {
     isLobbyChatActive: boolean;
     isOpen: boolean;
+    isChatOpenForOthers: boolean;
     isPollsTabFocused: boolean;
     lastReadMessage?: IMessage;
     lobbyMessageRecipient?: {
@@ -167,12 +170,19 @@ ReducerRegistry.register<IChatState>('features/chat', (state = DEFAULT_STATE, ac
             isLobbyChatActive: false
         };
 
+    case CHAT_OPEN_FOR_OTHERS:
+        return {
+            ...state,
+            isChatOpenForOthers: action.isChatOpenForOthers,
+        };
+
     case SET_IS_POLL_TAB_FOCUSED: {
         return {
             ...state,
             isPollsTabFocused: action.isPollsTabFocused,
             nbUnreadMessages: 0
-        }; }
+        }; 
+    }
 
     case SET_LOBBY_CHAT_RECIPIENT:
         return {

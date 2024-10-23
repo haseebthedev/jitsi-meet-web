@@ -54,6 +54,7 @@ import {
 } from './constants';
 import { getUnreadCount } from './functions';
 import { INCOMING_MSG_SOUND_FILE } from './sounds';
+import { openChatForOtherParticipants } from './actions.web';
 
 /**
  * Timeout for when to show the privacy notice after a private message was received.
@@ -284,6 +285,9 @@ StateListenerRegistry.register(
  * @returns {void}
  */
 function _addChatMsgListener(conference: IJitsiConference, store: IStore) {
+
+    const { dispatch, getState } = store;
+
     if (store.getState()['features/base/config'].iAmRecorder) {
         // We don't register anything on web if we are in iAmRecorder mode
         return;
@@ -292,18 +296,26 @@ function _addChatMsgListener(conference: IJitsiConference, store: IStore) {
     conference.on(
         JitsiConferenceEvents.MESSAGE_RECEIVED,
         /* eslint-disable max-params */
-        (participantId: string, message: string, timestamp: number,
-                displayName: string, isGuest: boolean, messageId: string) => {
+        (participantId: string, message: string, timestamp: number, displayName: string, isGuest: boolean, messageId: string) => {
+
+        // DISPATCH TURN ON / OFF CHAT FOR OTHERS STATE
+        if (message === 'DISABLE_CHAT') {
+            dispatch(openChatForOtherParticipants(false))
+        }
+        if (message === 'ENABLE_CHAT') {
+            dispatch(openChatForOtherParticipants(true))
+        }
+
         /* eslint-enable max-params */
-            _onConferenceMessageReceived(store, {
-                // in case of messages coming from visitors we can have unknown id
-                participantId: participantId || displayName,
-                message,
-                timestamp,
-                displayName,
-                isGuest,
-                messageId,
-                privateMessage: false });
+        _onConferenceMessageReceived(store, {
+            // in case of messages coming from visitors we can have unknown id
+            participantId: participantId || displayName,
+            message,
+            timestamp,
+            displayName,
+            isGuest,
+            messageId,
+            privateMessage: false });
         }
     );
 
@@ -524,10 +536,15 @@ function _handleReceivedMessage({ dispatch, getState }: IStore,
         isReaction
     }));
 
+    const messageToShowInNotif = message === "ENABLE_CHAT" ? "Tutor has enabled the chat." 
+        : message === "DISABLE_CHAT" 
+            ? "Tutor has disabled the chat." 
+            : message 
+
     if (shouldShowNotification) {
         dispatch(showMessageNotification({
             title: displayNameToShow,
-            description: message
+            description: messageToShowInNotif
         }, NOTIFICATION_TIMEOUT_TYPE.MEDIUM));
     }
 
@@ -535,7 +552,7 @@ function _handleReceivedMessage({ dispatch, getState }: IStore,
         // Logic for web only:
 
         APP.API.notifyReceivedChatMessage({
-            body: message,
+            body: messageToShowInNotif,
             from: participantId,
             nick: displayNameToShow,
             privateMessage,
