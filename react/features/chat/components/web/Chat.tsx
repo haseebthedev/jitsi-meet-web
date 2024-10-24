@@ -228,8 +228,6 @@ const Chat = ({
         dispatch(setIsPollsTabFocused(id !== CHAT_TABS.CHAT));
     }, []);
 
-    console.log("_isChatOpenForOthers ==== ", _isChatOpenForOthers);
-
     /**
      * Returns a React Element for showing chat messages and a form to send new
      * chat messages.
@@ -352,8 +350,6 @@ function _mapStateToProps(state: IReduxState, _ownProps: any) {
 
     const isUserModerator = isLocalParticipantModerator(state)
     
-    console.log("state === ", state, "moderator === ", isUserModerator);
-
     const { isOpen, isPollsTabFocused, messages, nbUnreadMessages, isChatOpenForOthers } = state['features/chat'];
     const { nbUnreadPolls } = state['features/polls'];
     const _localParticipant = getLocalParticipant(state);
