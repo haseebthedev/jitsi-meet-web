@@ -21,6 +21,7 @@ import { ISettingsState } from './reducer';
  *         startWithAudioMuted: boolean,
  *         startWithVideoMuted: boolean,
  *         startWithReactionsMuted: boolean
+ *         screenSharingEnabledByModerator: boolean
  *     }
  * }}
  */

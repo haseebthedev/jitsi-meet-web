@@ -82,6 +82,8 @@ export interface IProps extends AbstractDialogTabProps, WithTranslation {
      * Wether or not the stage filmstrip is enabled.
      */
     stageFilmstripEnabled: boolean;
+
+    screenSharingEnabledByModerator: boolean
 }
 
 const styles = (theme: Theme) => {
@@ -127,6 +129,7 @@ class MoreTab extends AbstractDialogTab<IProps, any> {
         this._onMaxStageParticipantsSelect = this._onMaxStageParticipantsSelect.bind(this);
         this._onHideSelfViewChanged = this._onHideSelfViewChanged.bind(this);
         this._onLanguageItemSelect = this._onLanguageItemSelect.bind(this);
+        this._onScreenSharingChanged = this._onScreenSharingChanged.bind(this);
     }
 
     /**
@@ -142,6 +145,7 @@ class MoreTab extends AbstractDialogTab<IProps, any> {
             iAmVisitor,
             hideSelfView,
             showLanguageSettings,
+            screenSharingEnabledByModerator,
             t
         } = this.props;
         const classes = withStyles.getClasses(this.props);
@@ -164,6 +168,15 @@ class MoreTab extends AbstractDialogTab<IProps, any> {
                         onChange = { this._onHideSelfViewChanged } />
                 )}
                 {showLanguageSettings && this._renderLanguageSelect()}
+                
+                {true && !iAmVisitor && (
+                    <Checkbox
+                        checked = { screenSharingEnabledByModerator }
+                        className = { classes.checkbox }
+                        label = { t('settingsView.allowScreenshare') }
+                        name = 'allow-screen-sharing'
+                        onChange = { this._onScreenSharingChanged } />
+                )}
             </div>
         );
     }
@@ -215,6 +228,17 @@ class MoreTab extends AbstractDialogTab<IProps, any> {
         const language = e.target.value;
 
         super._onChange({ currentLanguage: language });
+    }
+
+    /**
+     * Callback invoked to change screen sharing option for other participants.
+     *
+     * @param {Object} e - The key event to handle.
+     *
+     * @returns {void}
+     */
+    _onScreenSharingChanged({ target: { checked } }: React.ChangeEvent<HTMLInputElement>) {
+        super._onChange({ screenSharingEnabledByModerator: checked });
     }
 
     /**

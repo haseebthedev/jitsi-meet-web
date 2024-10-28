@@ -366,3 +366,13 @@ export const SET_ASSUMED_BANDWIDTH_BPS = 'SET_ASSUMED_BANDWIDTH_BPS';
  * }
  */
 export const UPDATE_CONFERENCE_METADATA = 'UPDATE_CONFERENCE_METADATA';
+
+/**
+ * The type of (redux) action which updated the conference metadata.
+ *
+ * {
+ *     type: UPDATE_CONFERENCE_METADATA,
+ *     metadata: Object
+ * }
+ */
+export const SCREEN_SHARING_PERMISSION_FOR_OTHERS = 'SCREEN_SHARING_PERMISSION_FOR_OTHERS';

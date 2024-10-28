@@ -301,6 +301,7 @@ function _mapStateToProps(state: IReduxState, ownProps: any) {
         icon: IconShortcuts
     });
 
+    // To render settings tab
     if (showMoreTab && !_iAmVisitor) {
         tabs.push({
             name: SETTINGS_TABS.MORE,
@@ -315,7 +316,8 @@ function _mapStateToProps(state: IReduxState, ownProps: any) {
                     currentLanguage: tabState?.currentLanguage,
                     hideSelfView: tabState?.hideSelfView,
                     showPrejoinPage: tabState?.showPrejoinPage,
-                    maxStageParticipants: tabState?.maxStageParticipants
+                    maxStageParticipants: tabState?.maxStageParticipants,
+                    screenSharingEnabledByModerator: tabState?.screenSharingEnabledByModerator
                 };
             },
             submit: submitMoreTab,

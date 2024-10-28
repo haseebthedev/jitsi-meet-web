@@ -105,6 +105,7 @@ export function getMoreTabProps(stateful: IStateful) {
 
     // when self view is controlled by the config we hide the settings
     const { disableSelfView, disableSelfViewSettings } = state['features/base/config'];
+    const { screenSharingEnabledByModerator } = state['features/base/settings']
 
     return {
         currentLanguage: language,
@@ -116,7 +117,8 @@ export function getMoreTabProps(stateful: IStateful) {
         showLanguageSettings: configuredTabs.includes('language'),
         showPrejoinPage: !state['features/base/settings'].userSelectedSkipPrejoin,
         showPrejoinSettings: isPrejoinEnabledInConfig(state),
-        stageFilmstripEnabled
+        stageFilmstripEnabled,
+        screenSharingEnabledByModerator
     };
 }
 

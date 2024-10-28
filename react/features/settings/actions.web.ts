@@ -23,7 +23,8 @@ import virtualBackgroundLogger from '../virtual-background/logger';
 
 import {
     SET_AUDIO_SETTINGS_VISIBILITY,
-    SET_VIDEO_SETTINGS_VISIBILITY
+    SET_VIDEO_SETTINGS_VISIBILITY,
+    SET_SCREEN_SHARING_ENABLED
 } from './actionTypes';
 import LogoutDialog from './components/web/LogoutDialog';
 import SettingsDialog from './components/web/SettingsDialog';
@@ -129,8 +130,10 @@ function setVideoSettingsVisibility(value: boolean) {
 export function submitMoreTab(newState: any) {
     return (dispatch: IStore['dispatch'], getState: IStore['getState']) => {
         const currentState = getMoreTabProps(getState());
-
+        
         const showPrejoinPage = newState.showPrejoinPage;
+
+        const screenSharingEnabledByModerator = newState.screenSharingEnabledByModerator
 
         if (showPrejoinPage !== currentState.showPrejoinPage) {
             dispatch(updateSettings({
@@ -138,6 +141,10 @@ export function submitMoreTab(newState: any) {
             }));
         }
 
+        if (newState.screenSharingEnabledByModerator !== currentState.screenSharingEnabledByModerator) {
+            dispatch(updateSettings({ screenSharingEnabledByModerator: screenSharingEnabledByModerator }));
+        }
+        
         if (newState.maxStageParticipants !== currentState.maxStageParticipants) {
             dispatch(updateSettings({ maxStageParticipants: Number(newState.maxStageParticipants) }));
         }

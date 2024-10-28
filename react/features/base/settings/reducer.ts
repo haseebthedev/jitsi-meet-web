@@ -48,7 +48,8 @@ const DEFAULT_STATE: ISettingsState = {
         'notify.chatMessages': true
     },
     userSelectedMicDeviceLabel: undefined,
-    userSelectedSkipPrejoin: undefined
+    userSelectedSkipPrejoin: undefined,
+    screenSharingEnabledByModerator: true,
 };
 
 export interface ISettingsState {
@@ -89,6 +90,7 @@ export interface ISettingsState {
     userSelectedSkipPrejoin?: boolean;
     videoSettingsVisible?: boolean;
     visible?: boolean;
+    screenSharingEnabledByModerator?: boolean;
 }
 
 const STORE_NAME = 'features/base/settings';
