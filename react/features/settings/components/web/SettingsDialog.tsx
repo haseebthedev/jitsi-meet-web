@@ -51,6 +51,7 @@ import NotificationsTab from './NotificationsTab';
 import ProfileTab from './ProfileTab';
 import ShortcutsTab from './ShortcutsTab';
 import VirtualBackgroundTab from './VirtualBackgroundTab';
+import { isLocalParticipantModerator } from '../../../base/participants/functions';
 
 /**
  * The type of the React {@code Component} props of
@@ -144,6 +145,9 @@ function _mapStateToProps(state: IReduxState, ownProps: any) {
     const enableVirtualBackground = checkVirtualBackgroundEnabled(state);
     const tabs: IDialogTab<any>[] = [];
     const _iAmVisitor = iAmVisitor(state);
+
+    const isUserModerator = isLocalParticipantModerator(state)
+
 
     if (showDeviceSettings) {
         tabs.push({
@@ -313,11 +317,12 @@ function _mapStateToProps(state: IReduxState, ownProps: any) {
 
                 return {
                     ...newProps,
+                    isUserModerator,
                     currentLanguage: tabState?.currentLanguage,
                     hideSelfView: tabState?.hideSelfView,
                     showPrejoinPage: tabState?.showPrejoinPage,
                     maxStageParticipants: tabState?.maxStageParticipants,
-                    screenSharingEnabledByModerator: tabState?.screenSharingEnabledByModerator
+                    screenSharingEnabledByModerator: tabState?.screenSharingEnabledByModerator,
                 };
             },
             submit: submitMoreTab,

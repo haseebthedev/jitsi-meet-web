@@ -14,9 +14,6 @@ import { DisplayNamePrompt } from './components';
 MiddlewareRegistry.register(({ dispatch, getState }) => next => action => {
     switch (action.type) {
     case SETTINGS_UPDATED: {
-
-        console.log("SETTINGS_UPDATED WITHIN display-name");
-
         if (action.settings.displayName
             && isDialogOpen(getState, DisplayNamePrompt)) {
             dispatch(hideDialog(DisplayNamePrompt));

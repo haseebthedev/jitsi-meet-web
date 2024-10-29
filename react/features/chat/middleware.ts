@@ -11,14 +11,15 @@ import { getCurrentConference } from '../base/conference/functions';
 import { IJitsiConference } from '../base/conference/reducer';
 import { openDialog } from '../base/dialog/actions';
 import i18next from '../base/i18n/i18next';
-import {
+import JitsiMeetJS, {
     JitsiConferenceErrors,
-    JitsiConferenceEvents
+    JitsiConferenceEvents,
 } from '../base/lib-jitsi-meet';
 import {
     getLocalParticipant,
     getParticipantById,
-    getParticipantDisplayName
+    getParticipantDisplayName,
+    isLocalParticipantModerator
 } from '../base/participants/functions';
 import MiddlewareRegistry from '../base/redux/MiddlewareRegistry';
 import StateListenerRegistry from '../base/redux/StateListenerRegistry';
@@ -56,6 +57,7 @@ import { getUnreadCount } from './functions';
 import { INCOMING_MSG_SOUND_FILE } from './sounds';
 import { openChatForOtherParticipants } from './actions.web';
 import { updateSettings } from '../base/settings/actions';
+import { startScreenShareFlow } from '../screen-share/actions.web';
 
 /**
  * Timeout for when to show the privacy notice after a private message was received.
@@ -287,6 +289,8 @@ StateListenerRegistry.register(
  */
 function _addChatMsgListener(conference: IJitsiConference, store: IStore) {
 
+    const isUserModerator = isLocalParticipantModerator(store.getState())
+
     const { dispatch, getState } = store;
 
     if (store.getState()['features/base/config'].iAmRecorder) {
@@ -313,7 +317,13 @@ function _addChatMsgListener(conference: IJitsiConference, store: IStore) {
         }
         
         if (message === "SCREEN_SHARING_FOR_OTHERS_DISABLED") {
+            // Disabled screen sharing button here
             dispatch(updateSettings({ screenSharingEnabledByModerator: false }));
+            
+            // Disable screen sharing for current user
+            if (!isUserModerator && JitsiMeetJS.isDesktopSharingEnabled()) {
+                APP.store.dispatch(startScreenShareFlow(false));
+            }
         }
 
         /* eslint-enable max-params */

@@ -1453,16 +1453,6 @@ export default {
      * Setup interaction between conference and UI.
      */
     _setupListeners() {
-        room.on('TEST-EVENT', () => {
-            console.log("event run...");
-            // if (command.name === 'screenSharingEnabled') {
-            //     const { enabled } = command.attributes;
-
-            //     // Implement any UI changes or state updates based on `enabled`
-            //     console.log("Screen sharing enabled by moderator:", enabled);
-            // }
-        });
-
         // add local streams when joined to the conference
         room.on(JitsiConferenceEvents.CONFERENCE_JOINED, () => {
             this._onConferenceJoined();
@@ -1500,12 +1490,6 @@ export default {
             APP.store.dispatch(updateRemoteParticipantFeatures(user));
         });
         room.on(JitsiConferenceEvents.USER_JOINED, (id, user) => {
-
-            console.log("JitsiConferenceEvents.USER_JOINED === ", JitsiConferenceEvents.USER_JOINED);
-
-            console.log("conference has been joined....", user);
-
-
             if (config.iAmRecorder && user.isHiddenFromRecorder()) {
                 return;
             }
@@ -1646,10 +1630,6 @@ export default {
         room.on(
             JitsiConferenceEvents.DISPLAY_NAME_CHANGED,
             (id, displayName) => {
-
-                console.log("--- JitsiConferenceEvents.DISPLAY_NAME_CHANGED ---");
-
-
                 const formattedDisplayName
                     = getNormalizedDisplayName(displayName);
                 const state = APP.store.getState();

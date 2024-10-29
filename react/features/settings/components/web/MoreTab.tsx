@@ -84,6 +84,8 @@ export interface IProps extends AbstractDialogTabProps, WithTranslation {
     stageFilmstripEnabled: boolean;
 
     screenSharingEnabledByModerator: boolean
+
+    isUserModerator: boolean
 }
 
 const styles = (theme: Theme) => {
@@ -146,6 +148,7 @@ class MoreTab extends AbstractDialogTab<IProps, any> {
             hideSelfView,
             showLanguageSettings,
             screenSharingEnabledByModerator,
+            isUserModerator,
             t
         } = this.props;
         const classes = withStyles.getClasses(this.props);
@@ -169,7 +172,7 @@ class MoreTab extends AbstractDialogTab<IProps, any> {
                 )}
                 {showLanguageSettings && this._renderLanguageSelect()}
                 
-                {true && !iAmVisitor && (
+                {isUserModerator && !iAmVisitor && (
                     <Checkbox
                         checked = { screenSharingEnabledByModerator }
                         className = { classes.checkbox }
