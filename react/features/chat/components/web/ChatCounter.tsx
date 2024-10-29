@@ -19,6 +19,11 @@ interface IProps {
      * True if the chat window should be rendered.
      */
     _isOpen: boolean;
+
+    /**
+     * True if the moderator has opened chat for other participants.
+     */
+    _isChatOpenForOthers: boolean;
 }
 
 /**
@@ -41,7 +46,7 @@ class ChatCounter extends Component<IProps> {
 
                 <span>
                     {
-                        !this.props._isOpen
+                        !this.props._isOpen && this.props._isChatOpenForOthers
                         && (this.props._count || null)
                     }
                 </span>
@@ -61,12 +66,13 @@ class ChatCounter extends Component<IProps> {
  * }}
  */
 function _mapStateToProps(state: IReduxState) {
-    const { isOpen } = state['features/chat'];
+    const { isOpen, isChatOpenForOthers } = state['features/chat'];
 
     return {
 
         _count: getUnreadCount(state) + getUnreadPollCount(state),
-        _isOpen: isOpen
+        _isOpen: isOpen,
+        _isChatOpenForOthers: isChatOpenForOthers
 
     };
 }

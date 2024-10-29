@@ -55,6 +55,7 @@ import {
 import { getUnreadCount } from './functions';
 import { INCOMING_MSG_SOUND_FILE } from './sounds';
 import { openChatForOtherParticipants } from './actions.web';
+import { updateSettings } from '../base/settings/actions';
 
 /**
  * Timeout for when to show the privacy notice after a private message was received.
@@ -306,6 +307,15 @@ function _addChatMsgListener(conference: IJitsiConference, store: IStore) {
             dispatch(openChatForOtherParticipants(true))
         }
 
+        // DISPATCH TURN ON / OFF SCREEN SHARING FOR OTHER PARTICIPANTS
+        if (message === "SCREEN_SHARING_FOR_OTHERS_ENABLED") {
+            dispatch(updateSettings({ screenSharingEnabledByModerator: true }));
+        }
+        
+        if (message === "SCREEN_SHARING_FOR_OTHERS_DISABLED") {
+            dispatch(updateSettings({ screenSharingEnabledByModerator: false }));
+        }
+
         /* eslint-enable max-params */
         _onConferenceMessageReceived(store, {
             // in case of messages coming from visitors we can have unknown id
@@ -536,10 +546,16 @@ function _handleReceivedMessage({ dispatch, getState }: IStore,
         isReaction
     }));
 
-    const messageToShowInNotif = message === "ENABLE_CHAT" ? "Tutor has enabled the chat." 
+    const messageToShowInNotif = 
+        message === "ENABLE_CHAT" 
+        ? "Tutor has enabled the chat."
         : message === "DISABLE_CHAT" 
-            ? "Tutor has disabled the chat." 
-            : message 
+        ? "Tutor has disabled the chat."
+        : message === "SCREEN_SHARING_FOR_OTHERS_ENABLED" 
+        ? "Tutor has enabled the ScreenSharing feature."
+        : message === "SCREEN_SHARING_FOR_OTHERS_DISABLED"
+        ? "Tutor has disabled the ScreenSharing feature."
+        : message;
 
     if (shouldShowNotification) {
         dispatch(showMessageNotification({

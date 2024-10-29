@@ -24,7 +24,6 @@ import virtualBackgroundLogger from '../virtual-background/logger';
 import {
     SET_AUDIO_SETTINGS_VISIBILITY,
     SET_VIDEO_SETTINGS_VISIBILITY,
-    SET_SCREEN_SHARING_ENABLED
 } from './actionTypes';
 import LogoutDialog from './components/web/LogoutDialog';
 import SettingsDialog from './components/web/SettingsDialog';
@@ -35,6 +34,7 @@ import {
     getProfileTabProps,
     getShortcutsTabProps
 } from './functions.web';
+import { sendMessage } from '../chat/actions.any';
 
 
 /**
@@ -142,9 +142,13 @@ export function submitMoreTab(newState: any) {
         }
 
         if (newState.screenSharingEnabledByModerator !== currentState.screenSharingEnabledByModerator) {
-            dispatch(updateSettings({ screenSharingEnabledByModerator: screenSharingEnabledByModerator }));
+            const message = screenSharingEnabledByModerator
+                ? "SCREEN_SHARING_FOR_OTHERS_ENABLED"
+                : "SCREEN_SHARING_FOR_OTHERS_DISABLED";
+          
+            dispatch(sendMessage(message));
         }
-        
+
         if (newState.maxStageParticipants !== currentState.maxStageParticipants) {
             dispatch(updateSettings({ maxStageParticipants: Number(newState.maxStageParticipants) }));
         }

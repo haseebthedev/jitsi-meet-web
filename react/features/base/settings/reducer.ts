@@ -49,7 +49,7 @@ const DEFAULT_STATE: ISettingsState = {
     },
     userSelectedMicDeviceLabel: undefined,
     userSelectedSkipPrejoin: undefined,
-    screenSharingEnabledByModerator: true,
+    screenSharingEnabledByModerator: false,
 };
 
 export interface ISettingsState {

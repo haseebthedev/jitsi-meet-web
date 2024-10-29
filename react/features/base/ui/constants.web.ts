@@ -236,7 +236,7 @@ export const commonStyles = (theme: Theme) => {
             },
 
             '&.disabled': {
-                cursor: 'initial !important',
+                cursor: 'not-allowed !important',
                 backgroundColor: `${theme.palette.disabled01} !important`,
 
                 '& svg': {

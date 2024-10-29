@@ -8,7 +8,8 @@
         display: flex;
         justify-content: center;
 
-        &.disabled, .disabled & {
+        &.disabled,
+        .disabled & {
             cursor: initial;
             color: #929292;
             background-color: #36383c;

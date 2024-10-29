@@ -252,10 +252,6 @@ function _addConferenceListeners(conference: IJitsiConference, dispatch: IStore[
         (id: string, json: Object) => dispatch(nonParticipantMessageReceived(id, json)));
 
     conference.on(
-        JitsiConferenceEvents.SCREEN_SHARING_PERMISSION_FOR_OTHERS,
-        (id: string, json: Object) => console.log("conference.on called === !!!"))
-
-    conference.on(
         JitsiConferenceEvents.USER_JOINED,
         (_id: string, user: any) => commonUserJoinedHandling({ dispatch }, conference, user));
     conference.on(

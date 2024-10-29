@@ -70,6 +70,12 @@ const ChatMessageGroup = ({ className = '', messages }: IProps) => {
             case "DISABLE_CHAT":
                 message.message = "Tutor has disabled the chat."
                 return message;
+            case "SCREEN_SHARING_FOR_OTHERS_ENABLED":
+                message.message = "Tutor has enabled the ScreenSharing feature."
+                return message;
+            case "SCREEN_SHARING_FOR_OTHERS_DISABLED":
+                message.message = "Tutor has disabled the ScreenSharing feature."
+                return message;
             default:
                 return message;
         }

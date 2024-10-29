@@ -87,7 +87,7 @@ export const colorMap = {
     action03Active: 'surface03',
 
     // Disabled
-    disabled01: 'surface09',
+    disabled01: 'surface03',
 
     // Focus
     focus01: 'primary07',

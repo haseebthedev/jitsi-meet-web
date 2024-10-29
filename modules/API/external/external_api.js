@@ -681,9 +681,6 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
                 case 'breakout-rooms-updated':
                     this.updateNumberOfParticipants(data.rooms);
                     break;
-                case 'screen-sharing-permission-changed':
-                    console.log('screenSharingPermissionChanged....');
-                    break;
                 case 'local-storage-changed':
                     jitsiLocalStorage.setItem('jitsiLocalStorage', data.localStorageContent);
 

@@ -1479,19 +1479,6 @@ class API {
     }
 
     /**
-     * Notify external application (if API is enabled) that the screen sharing in toggled by moderator.
-     *
-     * @param {Object} data - The event data.
-     * @returns {void}
-     */
-    notifyScreenSharingPermissionByModerator(status) {
-        this._sendEvent({
-            name: 'screen-sharing-permission-changed',
-            status
-        });
-    }
-
-    /**
      * Notify external application (if API is enabled) that the device list has
      * changed.
      *
@@ -2241,6 +2228,20 @@ class API {
         if (this._enabled) {
             this._enabled = false;
         }
+    }
+
+    /**
+     * Notify external application (if API is enabled) that the screen sharing in toggled by moderator.
+     *
+     * @param {Object} data - The event data.
+     * @returns {void}
+     */
+    notifyScreenSharingPermissionByModerator(status) {
+        console.log("notifyScreenSharingPermissionByModerator");
+        this._sendEvent({
+            name: 'screen-sharing-permission-changed',
+            status
+        });
     }
 }
 
