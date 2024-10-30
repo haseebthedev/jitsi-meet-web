@@ -1,8 +1,7 @@
-import { sendData } from '../../../conference';
+// @ts-check
 import MiddlewareRegistry from '../base/redux/MiddlewareRegistry';
 import { SETTINGS_UPDATED } from '../base/settings/actionTypes';
 import { getHideSelfView } from '../base/settings/functions.web';
-import { sendMessage } from '../chat/actions.any';
 import { showNotification } from '../notifications/actions';
 import { DISABLE_SELF_VIEW_NOTIFICATION_ID, NOTIFICATION_TIMEOUT_TYPE } from '../notifications/constants';
 
@@ -17,14 +16,14 @@ MiddlewareRegistry.register(({ dispatch, getState }) => next => action => {
 
     switch (action.type) {
         case SETTINGS_UPDATED: {
-            const {disableSelfView} = action.settings;
-            
+            const { disableSelfView } = action.settings;
+
             if (disableSelfView && disableSelfView !== oldValue) {
                 dispatch(showNotification({
                     uid: DISABLE_SELF_VIEW_NOTIFICATION_ID,
                     titleKey: 'notify.selfViewTitle',
-                    customActionNameKey: [ 'settings.title' ],
-                    customActionHandler: [ () =>
+                    customActionNameKey: ['settings.title'],
+                    customActionHandler: [() =>
                         dispatch(openSettingsDialog(SETTINGS_TABS.MORE))
                     ]
                 }, NOTIFICATION_TIMEOUT_TYPE.STICKY));
