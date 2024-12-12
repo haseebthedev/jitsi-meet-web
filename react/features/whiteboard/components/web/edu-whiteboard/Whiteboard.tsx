@@ -5,18 +5,17 @@ import { Sidebar } from "./WhiteboardSidebar";
 import { AssetRecordType, createShapeId, Editor, TLImageShape } from "tldraw";
 import { useSelector } from "react-redux";
 import { IReduxState } from "../../../../app/types";
-import { getLocalParticipant, isLocalParticipantModerator } from "../../../../base/participants/functions";
-import { ILocalParticipant, IParticipant } from "../../../../base/participants/types";
+import { isLocalParticipantModerator } from "../../../../base/participants/functions";
 
 const WhiteboardApp = () => {
     const editorsRef = useRef<Editor[]>([]);
 
     const state = useSelector((state: IReduxState) => state);
 
-    console.log("state === ", state);
-
     const { local, remote } = useSelector((state: IReduxState) => state["features/base/participants"]);
     const { room } = useSelector((state: IReduxState) => state["features/base/conference"]);
+
+    console.log("state === ", state);
 
     const iamModerator = isLocalParticipantModerator(state);
 
@@ -137,16 +136,11 @@ const WhiteboardApp = () => {
         });
     };
 
-    // const userInfo = participants.find((el: any) => el.jid === myJid);
-
     const handleClosePreview = () => setWhiteboardPreview(null);
 
     if (isLoading) return <div className="centered-content">Loading...</div>;
 
     if (!local) return <div className="centered-content">Unable to determine user. Please try again.</div>;
-
-    // Combine local and remote participants and remove duplicates
-    console.log("participants === ", participants);
 
     return (
         <div className="app-container">
