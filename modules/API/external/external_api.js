@@ -76,6 +76,7 @@ const commands = {
     stopShareVideo: 'stop-share-video',
     subject: 'subject',
     submitFeedback: 'submit-feedback',
+    toggleInteractivity: "toggle-interactivity",
     toggleAudio: 'toggle-audio',
     toggleCamera: 'toggle-camera',
     toggleCameraMirror: 'toggle-camera-mirror',
@@ -680,6 +681,10 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
                     break;
                 case 'breakout-rooms-updated':
                     this.updateNumberOfParticipants(data.rooms);
+                    break;
+                case 'toolbar-button-clicked':
+                    console.log("Activity button clicked...");
+                    // this.updateNumberOfParticipants(data.rooms);
                     break;
                 case 'local-storage-changed':
                     jitsiLocalStorage.setItem('jitsiLocalStorage', data.localStorageContent);
