@@ -25,8 +25,8 @@ const WhiteboardApp = () => {
     const [participants, setParticipants] = useState([]);
     const [whiteboardPreview, setWhiteboardPreview] = useState<string | null>(null);
 
+    // Initialize participants with the local participant
     useEffect(() => {
-        // Initialize participants with the local participant
         if (local) {
             setParticipants([local] as any);
         }
