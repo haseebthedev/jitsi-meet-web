@@ -10,15 +10,15 @@
 
     // General layout styles
     .app-container {
-        display: flex;
-        flex-direction: column;
+        display: block;
         width: 100%;
         height: 80vh;
         position: relative !important;
-        z-index: 99999;
+        z-index: 1;
         overflow: hidden;
 
         @media (min-width: 768px) {
+            display: flex;
             flex-direction: row;
         }
 

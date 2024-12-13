@@ -35,39 +35,45 @@ const Sidebar = ({
 
     return (
         <div className="sidebar">
-            <div className="sidebar__content">
-                {items.map((occupant, index) => (
-                    <div key={index} className="sidebar__item">
-                        <div className="sidebar__item__header">
-                            <h4>{iamModerator ? occupant.name : "Tutor's Board"}</h4>
-                            <button
-                                className="primary-button"
-                                style={{ padding: "6px 14px", fontSize: 12 }}
-                                onClick={() => onPreviewClick(occupant.id)}
-                            >
-                                Preview
-                            </button>
-                        </div>
+            {items?.length > 0 ? (
+                <div className="sidebar__content">
+                    {items.map((occupant, index) => (
+                        <div key={index} className="sidebar__item">
+                            <div className="sidebar__item__header">
+                                <h4>{iamModerator ? occupant.name : "Tutor's Board"}</h4>
+                                <button
+                                    className="primary-button"
+                                    style={{ padding: "6px 14px", fontSize: 12 }}
+                                    onClick={() => onPreviewClick(occupant.id)}
+                                >
+                                    Preview
+                                </button>
+                            </div>
 
-                        <div className="sidebar__item__content">
-                            <div className="overlay" />
-                            <WhiteboardEditor
-                                classId={classId}
-                                occupantId={occupant?.id}
-                                className="whiteboard-editor"
-                                autoFocus={false}
-                                hideUi={true}
-                                onMount={(editor) => {
-                                    editor.zoomToFit();
-                                    editorsRef?.current?.push(editor);
+                            <div className="sidebar__item__content">
+                                <div className="overlay" />
+                                <WhiteboardEditor
+                                    classId={classId}
+                                    occupantId={occupant?.id}
+                                    className="whiteboard-editor"
+                                    autoFocus={false}
+                                    hideUi={true}
+                                    onMount={(editor) => {
+                                        editor.zoomToFit();
+                                        editorsRef?.current?.push(editor);
 
-                                    handleEditorMount(editor);
-                                }}
-                            />
+                                        handleEditorMount(editor);
+                                    }}
+                                />
+                            </div>
                         </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="centered-content" style={{ fontSize: 14, color: "#329732" }}>
+                    No active participants.
+                </div>
+            )}
         </div>
     );
 };

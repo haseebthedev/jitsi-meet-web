@@ -62,7 +62,7 @@ const FileUpload = ({ isModalOpen, setModalOpen, onFileUpload, onClear }: any) =
             setGoogleSlideLink(null);
             setImagePreviews([]);
             setError(null);
-            setLoading(false); // Reset loader
+            setLoading(false);
         };
     }, [isModalOpen]);
 
@@ -71,7 +71,7 @@ const FileUpload = ({ isModalOpen, setModalOpen, onFileUpload, onClear }: any) =
             {/* Buttons */}
             <div className="whiteboard-controls">
                 <button onClick={() => setModalOpen(true)} className="primary-button">
-                    Upload
+                    Create
                 </button>
                 <button onClick={handleClearWhiteboard} className="secondary-button">
                     Clear
@@ -83,7 +83,7 @@ const FileUpload = ({ isModalOpen, setModalOpen, onFileUpload, onClear }: any) =
                 <div className="modal">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h2>Upload PDF</h2>
+                            <h2>Interactive Activity</h2>
                             <button
                                 className="secondary-button"
                                 style={{ padding: "2px", marginBottom: 20, backgroundColor: "grey" }}
