@@ -15,13 +15,10 @@ const WhiteboardApp = () => {
     const { local, remote } = useSelector((state: IReduxState) => state["features/base/participants"]);
     const { room } = useSelector((state: IReduxState) => state["features/base/conference"]);
 
-    console.log("state === ", state);
-
     const iamModerator = isLocalParticipantModerator(state);
 
     const [isModalOpen, setModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [classId, setClassId] = useState("12345678");
     const [participants, setParticipants] = useState([]);
     const [whiteboardPreview, setWhiteboardPreview] = useState<string | null>(null);
 
@@ -34,13 +31,14 @@ const WhiteboardApp = () => {
 
     useEffect(() => {
         if (room && remote) {
+            // Track existing IDs
             // @ts-ignore
-            const uniqueParticipants = new Set(participants.map((p) => p?.id)); // Track existing IDs
+            const uniqueParticipants = new Set(participants.map((p) => p?.id));
 
             remote.forEach((value, key) => {
-                if (key.toLowerCase() !== "whiteboard" && !uniqueParticipants.has(value.id)) {
-                    setParticipants((prev) => [...prev, value] as any); // Add unique participant
-                    uniqueParticipants.add(value.id); // Add ID to the set
+                if (!uniqueParticipants.has(value.id) && (value.role === "moderator" || value.role === "participant")) {
+                    setParticipants((prev) => [...prev, value] as any);
+                    uniqueParticipants.add(value.id);
                 }
             });
         }
@@ -50,7 +48,7 @@ const WhiteboardApp = () => {
         const timer = setTimeout(() => {
             setIsLoading(false);
         }, 2000);
-        return () => clearTimeout(timer); // Cleanup timer on unmount
+        return () => clearTimeout(timer);
     }, []);
 
     const handleFileUpload = (images: string[]) => {
@@ -142,6 +140,8 @@ const WhiteboardApp = () => {
 
     if (!local) return <div className="centered-content">Unable to determine user. Please try again.</div>;
 
+    if (!room) return <div className="centered-content">Invalid room. Please try again.</div>;
+
     return (
         <div className="app-container">
             <div className="app-container__main-content">
@@ -160,7 +160,7 @@ const WhiteboardApp = () => {
                     style={whiteboardPreview ? { opacity: 0 } : {}}
                 >
                     <WhiteboardEditor
-                        classId={classId}
+                        classId={room}
                         occupantId={local?.id}
                         autoFocus
                         onMount={(editor) => editorsRef.current.push(editor)}
@@ -169,7 +169,7 @@ const WhiteboardApp = () => {
             </div>
 
             <Sidebar
-                classId={classId}
+                classId={room}
                 iamModerator={iamModerator}
                 occupants={participants}
                 onPreviewClick={(occupantId: any) => setWhiteboardPreview(occupantId)}
@@ -183,8 +183,8 @@ const WhiteboardApp = () => {
                     </button>
                     <div className="fullscreen-editor">
                         <WhiteboardEditor
-                            classId={classId}
-                            occupantId={whiteboardPreview.split(".net/")[1]}
+                            classId={room}
+                            occupantId={whiteboardPreview}
                             autoFocus
                             onMount={(editor) => editor.resetZoom()}
                         />
