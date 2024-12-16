@@ -83,13 +83,21 @@ const FileUpload = ({ isModalOpen, setModalOpen, onFileUpload, onClear }: any) =
                 <div className="modal">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h2>Interactive Activity</h2>
+                            <h2>Create Interactive Activity</h2>
                             <button
-                                className="secondary-button"
-                                style={{ padding: "2px", marginBottom: 20, backgroundColor: "grey" }}
+                                style={{
+                                    width: "30px",
+                                    height: "30px",
+                                    borderRadius: "25px",
+                                    border: "none",
+                                    backgroundColor: "grey",
+                                    color: "#FFFFFF",
+                                    fontSize: 20,
+                                    cursor: "pointer",
+                                }}
                                 onClick={() => setModalOpen(false)}
                             >
-                                <X size={20} />
+                                <span>x</span>
                             </button>
                         </div>
 

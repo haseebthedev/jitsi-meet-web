@@ -6,6 +6,7 @@ import { AssetRecordType, createShapeId, Editor, TLImageShape } from "tldraw";
 import { useSelector } from "react-redux";
 import { IReduxState } from "../../../../app/types";
 import { isLocalParticipantModerator } from "../../../../base/participants/functions";
+import { WhiteboarMobileTopBar } from "./WhiteboardMobileTopBar";
 
 const WhiteboardApp = () => {
     const editorsRef = useRef<Editor[]>([]);
@@ -155,6 +156,13 @@ const WhiteboardApp = () => {
                     />
                 )}
 
+                {/* For Mobile View - Participants */}
+                <WhiteboarMobileTopBar
+                    iamModerator={iamModerator}
+                    occupants={participants}
+                    onPreviewClick={(occupantId: string) => setWhiteboardPreview(occupantId)}
+                />
+
                 <div
                     className={`content-area ${isModalOpen ? "modal-open" : ""}`}
                     style={whiteboardPreview ? { opacity: 0 } : {}}
@@ -172,7 +180,7 @@ const WhiteboardApp = () => {
                 classId={room}
                 iamModerator={iamModerator}
                 occupants={participants}
-                onPreviewClick={(occupantId: any) => setWhiteboardPreview(occupantId)}
+                onPreviewClick={(occupantId: string) => setWhiteboardPreview(occupantId)}
                 editorsRef={editorsRef}
             />
 
