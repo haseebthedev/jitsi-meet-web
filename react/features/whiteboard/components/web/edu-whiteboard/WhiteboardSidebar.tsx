@@ -40,7 +40,7 @@ const Sidebar = ({ iamModerator, occupants, onPreviewClick, editorsRef, classId 
                                 <button
                                     className="primary-button"
                                     style={{ padding: "6px 14px", fontSize: 12 }}
-                                    onClick={() => onPreviewClick(occupant.name)}
+                                    onClick={() => onPreviewClick(String(occupant.name).toLowerCase())}
                                 >
                                     Preview
                                 </button>
@@ -50,12 +50,12 @@ const Sidebar = ({ iamModerator, occupants, onPreviewClick, editorsRef, classId 
                                 <div className="overlay" />
                                 <WhiteboardEditor
                                     classId={classId}
-                                    occupantId={occupant?.name}
+                                    occupantId={String(occupant?.name).toLowerCase()}
                                     className="whiteboard-editor"
                                     autoFocus={false}
                                     hideUi={true}
                                     onMount={(editor) => {
-                                        editorsRef?.current.set(String(occupant?.id), editor);
+                                        editorsRef?.current.set(String(occupant?.name).toLowerCase(), editor);
                                         handleEditorMount(editor);
                                     }}
                                 />
