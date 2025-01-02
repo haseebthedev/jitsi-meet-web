@@ -2,19 +2,15 @@ import React from "react";
 import { Editor } from "tldraw";
 import { WhiteboardEditor } from "./whiteboard/WhiteboardEditor";
 
-const Sidebar = ({
-    iamModerator,
-    occupants,
-    onPreviewClick,
-    editorsRef,
-    classId,
-}: {
+interface SidebarI {
     iamModerator: boolean | null;
     occupants: Array<any>;
     onPreviewClick: Function;
-    editorsRef: React.RefObject<Editor[]>;
     classId: string;
-}) => {
+    editorsRef: React.MutableRefObject<Map<string, Editor>>;
+}
+
+const Sidebar = ({ iamModerator, occupants, onPreviewClick, editorsRef, classId }: SidebarI) => {
     const items = iamModerator
         ? occupants.filter((el) => el.role === "participant") // Show students for moderators
         : occupants.filter((el) => el.role === "moderator"); // Show tutor for students
@@ -44,24 +40,22 @@ const Sidebar = ({
                                 <button
                                     className="primary-button"
                                     style={{ padding: "6px 14px", fontSize: 12 }}
-                                    onClick={() => onPreviewClick(occupant.id)}
+                                    onClick={() => onPreviewClick(occupant.name)}
                                 >
                                     Preview
                                 </button>
                             </div>
 
-                            <div className="sidebar__item__content">
+                            <div className="sidebar__item__content" style={{ zoom: 1.48 }}>
                                 <div className="overlay" />
                                 <WhiteboardEditor
                                     classId={classId}
-                                    occupantId={occupant?.id}
+                                    occupantId={occupant?.name}
                                     className="whiteboard-editor"
                                     autoFocus={false}
                                     hideUi={true}
                                     onMount={(editor) => {
-                                        editor.zoomToFit();
-                                        editorsRef?.current?.push(editor);
-
+                                        editorsRef?.current.set(String(occupant?.id), editor);
                                         handleEditorMount(editor);
                                     }}
                                 />

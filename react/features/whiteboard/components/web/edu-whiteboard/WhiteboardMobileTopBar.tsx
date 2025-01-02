@@ -16,7 +16,7 @@ const WhiteboarMobileTopBar = ({
     return items.length > 0 ? (
         <div className="mobile-topbar">
             {items.map((occupant) => (
-                <div className="participant" key={occupant.id} onClick={() => onPreviewClick(occupant.id)}>
+                <div className="participant" key={occupant.id} onClick={() => onPreviewClick(occupant.name)}>
                     <p>{occupant?.name?.charAt(0)}</p>
                 </div>
             ))}

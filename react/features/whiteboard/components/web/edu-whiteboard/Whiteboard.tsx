@@ -1,15 +1,14 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { FileUpload } from "./WhiteboardFileUpload";
+import React, { useEffect, useRef, useState } from "react";
 import { WhiteboardEditor } from "./whiteboard/WhiteboardEditor";
 import { Sidebar } from "./WhiteboardSidebar";
-import { AssetRecordType, createShapeId, Editor, TLImageShape } from "tldraw";
+import { AssetRecordType, createShapeId, Editor, TLImageShape, transact, TLFrameShape } from "tldraw";
 import { useSelector } from "react-redux";
 import { IReduxState } from "../../../../app/types";
 import { isLocalParticipantModerator } from "../../../../base/participants/functions";
 import { WhiteboarMobileTopBar } from "./WhiteboardMobileTopBar";
 
 const WhiteboardApp = () => {
-    const editorsRef = useRef<Editor[]>([]);
+    const editorsRef = useRef(new Map<string, Editor>());
 
     const state = useSelector((state: IReduxState) => state);
 
@@ -18,7 +17,6 @@ const WhiteboardApp = () => {
 
     const iamModerator = isLocalParticipantModerator(state);
 
-    const [isModalOpen, setModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [participants, setParticipants] = useState([]);
     const [whiteboardPreview, setWhiteboardPreview] = useState<string | null>(null);
@@ -32,14 +30,19 @@ const WhiteboardApp = () => {
 
     useEffect(() => {
         if (room && remote) {
+            console.log("remote ==== ", remote);
+
             // Track existing IDs
             // @ts-ignore
-            const uniqueParticipants = new Set(participants.map((p) => p?.id));
+            const uniqueParticipants = new Set(participants.map((p) => p?.name));
 
             remote.forEach((value, key) => {
-                if (!uniqueParticipants.has(value.id) && (value.role === "moderator" || value.role === "participant")) {
+                if (
+                    !uniqueParticipants.has(value.name) &&
+                    (value.role === "moderator" || value.role === "participant")
+                ) {
                     setParticipants((prev) => [...prev, value] as any);
-                    uniqueParticipants.add(value.id);
+                    uniqueParticipants.add(value.name);
                 }
             });
         }
@@ -52,90 +55,123 @@ const WhiteboardApp = () => {
         return () => clearTimeout(timer);
     }, []);
 
-    const handleFileUpload = (images: string[]) => {
+    const onActivityUpload = (images: string[], onClose: Function) => {
         if (!images || images.length === 0) return;
 
-        editorsRef.current.forEach((editor) => {
-            images.forEach((image, index) => {
-                const assetId = AssetRecordType.createId();
-                const shapeId = createShapeId();
+        // Works like transaction, it would ensure it would execute this block before executing another command for tldraw
+        transact(() => {
+            editorsRef.current.forEach((editor) => {
+                // Start creating pages and shapes for images
+                images.forEach((image, index) => {
+                    const assetId = AssetRecordType.createId();
+                    const shapeId = createShapeId();
 
-                editor.createAssets([
-                    {
-                        id: assetId,
-                        typeName: "asset",
-                        type: "image",
-                        meta: {},
-                        props: {
-                            w: 1366,
-                            h: 768,
-                            mimeType: "image/png",
-                            src: image,
-                            name: `image-${index + 1}`,
-                            isAnimated: false,
+                    editor.createAssets([
+                        {
+                            id: assetId,
+                            typeName: "asset",
+                            type: "image",
+                            meta: {},
+                            props: {
+                                w: 1920,
+                                h: 1080,
+                                mimeType: "image/png",
+                                src: image,
+                                name: `image-${index + 1}`,
+                                isAnimated: false,
+                            },
                         },
-                    },
-                ]);
+                    ]);
 
-                const pageId = `page:${index + 1}` as any;
-                editor.createPage({
-                    id: pageId,
-                    name: `Page ${index + 1}`,
-                    meta: {},
+                    const pageId = `page:activity-${index + 1}` as any;
+                    editor.createPage({
+                        id: pageId,
+                        name: `Page ${index + 1}`,
+                        meta: {},
+                    });
+
+                    editor.setCurrentPage(pageId);
+
+                    editor.createShape<TLImageShape>({
+                        id: shapeId,
+                        type: "image",
+                        x: 0,
+                        y: 0,
+                        props: {
+                            w: 1920,
+                            h: 1080,
+                            assetId,
+                        },
+                        isLocked: true,
+                    });
                 });
 
-                editor.setCurrentPage(pageId);
-
-                editor.createShape<TLImageShape>({
-                    id: shapeId,
-                    type: "image",
-                    x: 0,
-                    y: 0,
-                    isLocked: false,
-                    props: {
-                        w: 1600,
-                        h: 900,
-                        assetId,
-                    },
-                });
+                // Adjust zoom level to fit the first page
+                editor.zoomToFit();
+                editor.setCameraOptions({ isLocked: true });
             });
-
-            const firstPage = editor.getPages()[0];
-            if (firstPage) {
-                editor.setCurrentPage(firstPage.id);
-            }
-
-            editor.zoomToFit();
         });
 
-        setModalOpen(false);
+        onClose?.();
     };
 
-    const clearAllWhiteboards = () => {
-        editorsRef.current.forEach((editor) => {
-            const pageIds = editor.getPages().map((page) => page.id);
+    const onActivityRemove = () => {
+        transact(() => {
+            editorsRef.current.forEach((editor) => {
+                const currentPageId = editor.getCurrentPageId();
 
-            pageIds.forEach((pageId) => {
-                if (pageId !== editor.getCurrentPageId()) {
-                    editor.deletePage(pageId);
-                }
+                // Unlock all image shapes
+                const shapeIds = Array.from(editor.getPageShapeIds(currentPageId));
+
+                shapeIds.forEach((shapeId) => {
+                    const shape = editor.getShape(shapeId);
+                    if (shape?.type === "image" && shape.isLocked) {
+                        editor.updateShape({ ...shape, isLocked: false });
+                    }
+                });
+
+                const pageIds = editor.getPages().map((page) => page.id);
+
+                pageIds.forEach((pageId) => {
+                    if (pageId !== editor.getCurrentPageId()) {
+                        editor.deletePage(pageId);
+                    }
+                });
+
+                editor.deleteShapes(shapeIds);
+
+                editor.renamePage(currentPageId, "Page");
+
+                const assetIds = editor.getAssets().map((asset) => asset.id);
+                editor.deleteAssets(assetIds);
+
+                editor.clearHistory();
+                editor.zoomToFit();
             });
-
-            const currentPageId = editor.getCurrentPageId();
-            const shapeIds = Array.from(editor.getPageShapeIds(currentPageId));
-            editor.deleteShapes(shapeIds);
-
-            editor.renamePage(currentPageId, "Page");
-
-            const assetIds = editor.getAssets().map((asset) => asset.id);
-            editor.deleteAssets(assetIds);
-
-            editor.clearHistory();
-            editor.zoomToFit();
         });
     };
 
     const handleClosePreview = () => setWhiteboardPreview(null);
+
+    const handleClearUserContent = () => {
+        transact(() => {
+            editorsRef.current.forEach((editor) => {
+                const currentPageId = editor.getCurrentPageId();
+
+                // Get all shapes on the current page
+                const allShapeIds = Array.from(editor.getPageShapeIds(currentPageId));
+
+                // Filter out frame shapes and their children from the deletion list
+                const shapesToDelete = allShapeIds.filter((shapeId) => {
+                    const shape = editor.getShape(shapeId);
+                    // @ts-ignore
+                    return shape?.type !== "frame" && shape?.type !== "image";
+                    // return shape?.props?.name !== "Frame" && !shape.props?.name?.startsWith("Image");
+                });
+                editor.deleteShapes(shapesToDelete);
+            });
+        });
+    };
 
     if (isLoading) return <div className="centered-content">Loading...</div>;
 
@@ -146,32 +182,24 @@ const WhiteboardApp = () => {
     return (
         <div className="app-container">
             <div className="app-container__main-content">
-                {iamModerator && (
-                    <FileUpload
-                        iamModerator
-                        isModalOpen={isModalOpen}
-                        setModalOpen={setModalOpen}
-                        onFileUpload={handleFileUpload}
-                        onClear={clearAllWhiteboards}
-                    />
-                )}
-
                 {/* For Mobile View - Participants */}
                 <WhiteboarMobileTopBar
                     iamModerator={iamModerator}
                     occupants={participants}
                     onPreviewClick={(occupantId: string) => setWhiteboardPreview(occupantId)}
                 />
-
-                <div
-                    className={`content-area ${isModalOpen ? "modal-open" : ""}`}
-                    style={whiteboardPreview ? { opacity: 0 } : {}}
-                >
+                <div className="content-area" style={whiteboardPreview ? { opacity: 0 } : {}}>
                     <WhiteboardEditor
+                        iamModerator={iamModerator}
                         classId={room}
-                        occupantId={local?.id}
-                        autoFocus
-                        onMount={(editor) => editorsRef.current.push(editor)}
+                        occupantId={local?.name as any}
+                        autoFocus={true}
+                        onMount={(editor) => {
+                            editorsRef.current.set(String(local?.id), editor);
+                        }}
+                        onActivityUpload={onActivityUpload}
+                        onActivityRemove={onActivityRemove}
+                        onClearPage={handleClearUserContent}
                     />
                 </div>
             </div>
