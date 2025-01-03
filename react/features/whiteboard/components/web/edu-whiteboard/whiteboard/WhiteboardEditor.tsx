@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { debounce } from "lodash";
 import { useSync, useSyncDemo } from "@tldraw/sync";
 import {
@@ -20,7 +20,7 @@ import {
 import { multiplayerAssets, unfurlBookmarkUrl } from "./useSyncStore";
 import { processSlideUrl } from "./api";
 import Icon from "../../../../../base/icons/components/Icon";
-import { IconTrash } from "../../../../../base/icons/svg";
+import { IconTrash, IconUndo, IconRedo } from "../../../../../base/icons/svg";
 import { extractPresentationIdFromSlideUrl } from "../utils";
 import "tldraw/tldraw.css";
 import { WORKER_URL } from "../constants";
@@ -33,6 +33,8 @@ interface WhiteboardEditorProps extends Omit<TldrawProps, "onMount"> {
     classId: string;
     occupantId: string;
     persistenceKey?: string;
+    isInSidebar?: boolean;
+    previewMode?: boolean;
     onMount?: (editor: Editor) => void;
     onActivityUpload?: (images: string[], onClose: () => void) => void;
     onActivityRemove?: () => void;
@@ -43,17 +45,24 @@ export const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({
     iamModerator = false,
     classId,
     occupantId,
+    isInSidebar = false,
+    previewMode = false,
     onActivityUpload,
     onActivityRemove,
     onClearPage,
     onMount,
     ...rest
 }) => {
+    const previewModeRef = useRef(previewMode);
     const [editor, setEditor] = useState<Editor | null>(null);
     const roomId = `${classId}-${occupantId}`;
 
-    const store = useSyncDemo({ roomId });
-    // const store = useSync({ uri: `${WORKER_URL}/connect/${roomId}`, assets: multiplayerAssets });
+    // const store = useSyncDemo({ roomId });
+    const store = useSync({ uri: `${WORKER_URL}/connect/${roomId}`, assets: multiplayerAssets });
+
+    useEffect(() => {
+        previewModeRef.current = previewMode;
+    }, [previewMode]);
 
     const UploadSlideDialog = ({ onClose }: { onClose(): void }) => {
         const [link, setLink] = useState<string | null>(null);
@@ -136,6 +145,36 @@ export const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({
                         justifyContent: "center",
                         alignItems: "center",
                     }}
+                    onClick={() => editor?.undo()}
+                >
+                    {/* @ts-ignore */}
+                    <Icon src={IconUndo} alt="undo-icon" size={18} />
+                </button>
+                <button
+                    className="primary-button"
+                    style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 10,
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                    }}
+                    onClick={() => editor?.redo()}
+                >
+                    {/* @ts-ignore */}
+                    <Icon src={IconRedo} alt="redo-icon" size={18} />
+                </button>
+                <button
+                    className="primary-button"
+                    style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 10,
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                    }}
                     onClick={onClearPage}
                 >
                     {/* @ts-ignore */}
@@ -158,53 +197,91 @@ export const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({
                         justifyContent: "center",
                         alignItems: "center",
                     }}
+                    onClick={() => editor?.undo()}
+                >
+                    {/* @ts-ignore */}
+                    <Icon src={IconUndo} alt="undo-icon" size={18} />
+                </button>
+                <button
+                    className="primary-button"
+                    style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 10,
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                    }}
+                    onClick={() => editor?.redo()}
+                >
+                    {/* @ts-ignore */}
+                    <Icon src={IconRedo} alt="redo-icon" size={18} />
+                </button>
+                <button
+                    className="primary-button"
+                    style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 10,
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                    }}
                     onClick={onClearPage}
                 >
                     {/* @ts-ignore */}
-                    <Icon src={IconTrash} alt="trash-icon" />
+                    <Icon src={IconTrash} alt="trash-icon" size={16} />
                 </button>
             </div>
         );
     };
 
-    const components: TLComponents = {
-        SharePanel: iamModerator ? CustomSharePanelForModerator : CustomSharePanelForParticipant,
-        Minimap: null,
-        ZoomMenu: null,
-    };
-
-    const handlePageChangeEvent = useCallback(() => {
+    useEffect(() => {
         if (!editor) return;
+        if (previewModeRef.current) return;
 
-        const debouncedHandleChangeEvent = debounce((change) => {
-            // @ts-ignore
-            for (const [from, to] of Object.values(change.changes.updated)) {
+        const handleChangeEvent = (change: any) => {
+            Object.values(change.changes.updated).forEach(([from, to]: any) => {
+                // Sync page changes only if not in preview mode
+
+                console.log("previewModeRef.current === ", previewModeRef.current);
+
                 if (isInstanceRecord(from) && isInstanceRecord(to) && from.currentPageId !== to.currentPageId) {
                     // @ts-ignore
                     editor.setCurrentPage(to.currentPageId);
                 }
 
                 const currentPageId = editor.getCurrentPageId();
-                if (currentPageId.includes("page:IA")) {
+                if (currentPageId.includes("page:IA") || isInSidebar) {
                     editor.zoomToFit({ force: true, immediate: true }).setCameraOptions({ isLocked: true });
                 }
-            }
-        }, 5);
-
-        const cleanupFunction = editor.store.listen(debouncedHandleChangeEvent, { scope: "all", source: "remote" });
-
-        return cleanupFunction;
-    }, [editor]);
-
-    useEffect(() => {
-        if (!editor) return;
-
-        const cleanup = handlePageChangeEvent();
-
-        return () => {
-            if (cleanup) cleanup();
+            });
         };
-    }, [editor, handlePageChangeEvent]);
+
+        // Register the event listener
+        const cleanupFunction = editor.store.listen(handleChangeEvent, {
+            scope: "all",
+            source: "all",
+        });
+
+        // Cleanup listener on component unmount or when dependencies change
+        return () => {
+            cleanupFunction();
+        };
+    }, [editor, previewMode, isInSidebar]);
+
+    const components: TLComponents = {
+        ...{
+            SharePanel: previewMode
+                ? null
+                : iamModerator
+                ? CustomSharePanelForModerator
+                : CustomSharePanelForParticipant,
+            Minimap: null,
+            ZoomMenu: null,
+        },
+        ...(previewMode && !iamModerator ? { Toolbar: null, MainMenu: null } : {}),
+    };
 
     return (
         <Tldraw
@@ -216,6 +293,12 @@ export const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({
                 setEditor(editor);
                 editor.registerExternalAssetHandler("url", unfurlBookmarkUrl);
                 if (onMount) onMount(editor);
+
+                // Making editor readonly for preview mode
+                // if (previewMode && !iamModerator) {
+                //     editor.updateInstanceState({ isReadonly: true });
+                //     // editor.updateInstanceState({ isReadonly: true, isToolLocked: true });
+                // }
             }}
             {...rest}
         />

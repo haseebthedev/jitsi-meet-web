@@ -107,6 +107,8 @@ import { default as IconWifi2Bars } from './wifi-2.svg';
 import { default as IconWifi3Bars } from './wifi-3.svg';
 import { default as IconYahoo } from './yahoo.svg';
 import { default as IconEraser } from './eraser.svg';
+import { default as IconUndo } from './undo.svg';
+import { default as IconRedo } from './redo.svg';
 
 /**
  * Map containing the default icons.
@@ -220,5 +222,7 @@ export const DEFAULT_ICON: Record<string, any> = {
     IconWifi2Bars,
     IconWifi3Bars,
     IconYahoo,
-    IconEraser
+    IconEraser,
+    IconUndo,
+    IconRedo
 };

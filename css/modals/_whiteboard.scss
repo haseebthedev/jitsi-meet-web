@@ -66,13 +66,18 @@
     .tlui-toolbar__tools__list .tlui-button[data-value="arrow"],
     .tlui-toolbar__tools__list .tlui-button[data-value="asset"],
     .tlui-toolbar__tools__list .tlui-button[data-value="rectangle"],
+    .tlui-toolbar__tools__list .tlui-button[data-value="hand"],
     .tlui-toolbar__tools__list .tlui-button[data-value="note"] {
         display: none;
     }
 
-    .tlui-toolbar__extras__controls {
-        border-radius: 11px !important;
-        margin-left: 0px !important;
+    // .tlui-toolbar__extras__controls {
+    //     border-radius: 11px !important;
+    //     margin-left: 0px !important;
+    // }
+
+    .tlui-toolbar__extras {
+        display: none !important;
     }
 
     .excalidraw-wrapper {

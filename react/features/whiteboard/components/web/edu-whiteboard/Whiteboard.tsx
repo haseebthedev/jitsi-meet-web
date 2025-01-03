@@ -19,7 +19,7 @@ const WhiteboardApp = () => {
 
     const [isLoading, setIsLoading] = useState(true);
     const [participants, setParticipants] = useState([]);
-    const [whiteboardPreview, setWhiteboardPreview] = useState<string | null>(null);
+    const [participantPreview, setParticipantPreview] = useState<string | null>(null);
 
     // Initialize participants with the local participant
     useEffect(() => {
@@ -182,103 +182,7 @@ const WhiteboardApp = () => {
         });
     };
 
-    // const onActivityUpload = (images: string[], onClose: Function) => {
-    //     if (!images || images.length === 0) return;
-
-    //     // Works like transaction, it would ensure it would execute this block before executing another command for tldraw
-    //     transact(() => {
-    //         editorsRef.current.forEach((editor) => {
-    //             // Start creating pages and shapes for images
-    //             images.forEach((image, index) => {
-    //                 const assetId = AssetRecordType.createId();
-    //                 const shapeId = createShapeId();
-
-    //                 editor.createAssets([
-    //                     {
-    //                         id: assetId,
-    //                         typeName: "asset",
-    //                         type: "image",
-    //                         meta: {},
-    //                         props: {
-    //                             w: 1920,
-    //                             h: 1080,
-    //                             mimeType: "image/png",
-    //                             src: image,
-    //                             name: `image-${index + 1}`,
-    //                             isAnimated: false,
-    //                         },
-    //                     },
-    //                 ]);
-
-    //                 const pageId = `page:activity-${index + 1}` as any;
-    //                 editor.createPage({
-    //                     id: pageId,
-    //                     name: `Page ${index + 1}`,
-    //                     meta: {},
-    //                 });
-
-    //                 editor.setCurrentPage(pageId);
-
-    //                 editor.createShape<TLImageShape>({
-    //                     id: shapeId,
-    //                     type: "image",
-    //                     x: 0,
-    //                     y: 0,
-    //                     props: {
-    //                         w: 1920,
-    //                         h: 1080,
-    //                         assetId,
-    //                     },
-    //                     isLocked: true,
-    //                 });
-    //             });
-
-    //             // Adjust zoom level to fit the first page
-    //             editor.zoomToFit();
-    //             editor.setCameraOptions({ isLocked: true });
-    //         });
-    //     });
-
-    //     onClose?.();
-    // };
-
-    // const onActivityRemove = () => {
-    //     transact(() => {
-    //         editorsRef.current.forEach((editor) => {
-    //             const currentPageId = editor.getCurrentPageId();
-
-    //             // Unlock all image shapes
-    //             const shapeIds = Array.from(editor.getPageShapeIds(currentPageId));
-
-    //             shapeIds.forEach((shapeId) => {
-    //                 const shape = editor.getShape(shapeId);
-    //                 if (shape?.type === "image" && shape.isLocked) {
-    //                     editor.updateShape({ ...shape, isLocked: false });
-    //                 }
-    //             });
-
-    //             const pageIds = editor.getPages().map((page) => page.id);
-
-    //             pageIds.forEach((pageId) => {
-    //                 if (pageId !== editor.getCurrentPageId()) {
-    //                     editor.deletePage(pageId);
-    //                 }
-    //             });
-
-    //             editor.deleteShapes(shapeIds);
-
-    //             editor.renamePage(currentPageId, "Page");
-
-    //             const assetIds = editor.getAssets().map((asset) => asset.id);
-    //             editor.deleteAssets(assetIds);
-
-    //             editor.clearHistory();
-    //             editor.zoomToFit();
-    //         });
-    //     });
-    // };
-
-    const handleClosePreview = () => setWhiteboardPreview(null);
+    const handleClosePreview = () => setParticipantPreview(null);
 
     const handleClearUserContent = () => {
         transact(() => {
@@ -314,9 +218,9 @@ const WhiteboardApp = () => {
                 <WhiteboarMobileTopBar
                     iamModerator={iamModerator}
                     occupants={participants}
-                    onPreviewClick={(occupantId: string) => setWhiteboardPreview(occupantId)}
+                    onPreviewClick={(occupantId: string) => setParticipantPreview(occupantId)}
                 />
-                <div className="content-area" style={whiteboardPreview ? { opacity: 0 } : {}}>
+                <div className="content-area" style={participantPreview ? { opacity: 0 } : {}}>
                     <WhiteboardEditor
                         iamModerator={iamModerator}
                         classId={room}
@@ -336,11 +240,11 @@ const WhiteboardApp = () => {
                 classId={room}
                 iamModerator={iamModerator}
                 occupants={participants}
-                onPreviewClick={(occupantId: string) => setWhiteboardPreview(occupantId)}
+                onPreviewClick={(occupantId: string) => setParticipantPreview(occupantId)}
                 editorsRef={editorsRef}
             />
 
-            {whiteboardPreview && (
+            {participantPreview && (
                 <div className="app-container__fullscreen-preview">
                     <button onClick={handleClosePreview} className="primary-button">
                         Go Back
@@ -348,9 +252,13 @@ const WhiteboardApp = () => {
                     <div className="fullscreen-editor">
                         <WhiteboardEditor
                             classId={room}
-                            occupantId={whiteboardPreview}
-                            autoFocus
-                            onMount={(editor) => editor.resetZoom()}
+                            iamModerator={iamModerator}
+                            occupantId={participantPreview}
+                            autoFocus={true}
+                            previewMode={true}
+                            // onMount={(editor) => {
+                            //     editor.zoomToFit({ force: true, immediate: true });
+                            // }}
                         />
                     </div>
                 </div>

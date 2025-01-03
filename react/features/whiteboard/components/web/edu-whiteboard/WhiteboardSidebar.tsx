@@ -18,6 +18,7 @@ const Sidebar = ({ iamModerator, occupants, onPreviewClick, editorsRef, classId 
     const handleEditorMount = (editor: Editor) => {
         const handleContentChange = () => {
             editor.zoomToFit();
+            console.log("applyingToZoomToFit...");
         };
 
         // Subscribe to the editor's content changes
@@ -53,6 +54,7 @@ const Sidebar = ({ iamModerator, occupants, onPreviewClick, editorsRef, classId 
                                     occupantId={String(occupant?.name).toLowerCase()}
                                     className="whiteboard-editor"
                                     autoFocus={false}
+                                    isInSidebar={true}
                                     hideUi={true}
                                     onMount={(editor) => {
                                         editorsRef?.current.set(String(occupant?.name).toLowerCase(), editor);
