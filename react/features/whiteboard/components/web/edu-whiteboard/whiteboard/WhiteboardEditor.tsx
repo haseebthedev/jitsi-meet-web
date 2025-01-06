@@ -238,18 +238,23 @@ export const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({
 
     useEffect(() => {
         if (!editor) return;
-        if (previewModeRef.current) return;
 
         const handleChangeEvent = (change: any) => {
+            // Skip processing if preview mode is enabled
+            // if (previewMode || previewModeRef?.current) {
+            //     return;
+            // }
+
             Object.values(change.changes.updated).forEach(([from, to]: any) => {
                 // Sync page changes only if not in preview mode
+                // if (isInstanceRecord(from) && isInstanceRecord(to) && from.currentPageId !== to.currentPageId) {
+                //     // if (previewMode || previewModeRef?.current === true) {
+                //     //     return;
+                //     // }
 
-                console.log("previewModeRef.current === ", previewModeRef.current);
-
-                if (isInstanceRecord(from) && isInstanceRecord(to) && from.currentPageId !== to.currentPageId) {
-                    // @ts-ignore
-                    editor.setCurrentPage(to.currentPageId);
-                }
+                //     // @ts-ignore
+                //     editor.setCurrentPage(to.currentPageId);
+                // }
 
                 const currentPageId = editor.getCurrentPageId();
                 if (currentPageId.includes("page:IA") || isInSidebar) {
@@ -286,7 +291,7 @@ export const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({
     return (
         <Tldraw
             store={store}
-            autoFocus={true}
+            autoFocus={!previewModeRef?.current}
             forceMobile={true}
             components={components}
             onMount={(editor) => {

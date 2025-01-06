@@ -182,7 +182,19 @@ const WhiteboardApp = () => {
         });
     };
 
-    const handleClosePreview = () => setParticipantPreview(null);
+    // const handleClosePreview = () => setParticipantPreview(null);
+
+    const handleClosePreview = (occupantId: string) => {
+        const editor = editorsRef.current.get(occupantId);
+        if (editor) {
+            // Fetch the current page from the occupant's whiteboard
+            const currentPageId = editor.getCurrentPageId();
+
+            // Update the sidebar editor to match
+            editor.setCurrentPage(currentPageId);
+            setParticipantPreview(null);
+        }
+    };
 
     const handleClearUserContent = () => {
         transact(() => {
@@ -222,16 +234,16 @@ const WhiteboardApp = () => {
                 />
                 <div className="content-area" style={participantPreview ? { opacity: 0 } : {}}>
                     <WhiteboardEditor
+                        autoFocus={true}
                         iamModerator={iamModerator}
                         classId={room}
                         occupantId={local?.name?.toLowerCase() as any}
-                        autoFocus={true}
-                        onMount={(editor) => {
-                            editorsRef.current.set(String(local?.name?.toLowerCase()), editor);
-                        }}
                         onActivityUpload={onActivityUpload}
                         onActivityRemove={onActivityRemove}
                         onClearPage={handleClearUserContent}
+                        onMount={(editor) => {
+                            editorsRef.current.set(String(local?.name?.toLowerCase()), editor);
+                        }}
                     />
                 </div>
             </div>
@@ -246,7 +258,12 @@ const WhiteboardApp = () => {
 
             {participantPreview && (
                 <div className="app-container__fullscreen-preview">
-                    <button onClick={handleClosePreview} className="primary-button">
+                    <button
+                        onClick={() => {
+                            handleClosePreview(participantPreview);
+                        }}
+                        className="primary-button"
+                    >
                         Go Back
                     </button>
                     <div className="fullscreen-editor">
@@ -254,7 +271,7 @@ const WhiteboardApp = () => {
                             classId={room}
                             iamModerator={iamModerator}
                             occupantId={participantPreview}
-                            autoFocus={true}
+                            autoFocus={false}
                             previewMode={true}
                             // onMount={(editor) => {
                             //     editor.zoomToFit({ force: true, immediate: true });

@@ -10,23 +10,51 @@ interface SidebarI {
     editorsRef: React.MutableRefObject<Map<string, Editor>>;
 }
 
+// @ts-ignore
+const isInstanceRecord = (record: TLRecord): record is { currentPageId: string } => "currentPageId" in record;
+
 const Sidebar = ({ iamModerator, occupants, onPreviewClick, editorsRef, classId }: SidebarI) => {
     const items = iamModerator
         ? occupants.filter((el) => el.role === "participant") // Show students for moderators
         : occupants.filter((el) => el.role === "moderator"); // Show tutor for students
 
     const handleEditorMount = (editor: Editor) => {
-        const handleContentChange = () => {
-            editor.zoomToFit();
-            console.log("applyingToZoomToFit...");
+        // const handleContentChange = () => {
+        //     editor.zoomToFit();
+        //     console.log("applyingToZoomToFit...");
+        // };
+
+        // // Subscribe to the editor's content changes
+        // editor.on("change", handleContentChange);
+
+        // // Clean up subscription on unmount
+        // return () => {
+        //     editor.off("change", handleContentChange);
+        // };
+
+        const handleChangeEvent = (change: any) => {
+            Object.values(change.changes.updated).forEach(([from, to]: any) => {
+                // Sync page changes only if not in preview mode
+                if (isInstanceRecord(from) && isInstanceRecord(to) && from.currentPageId !== to.currentPageId) {
+                    // @ts-ignore
+                    editor.setCurrentPage(to.currentPageId);
+                }
+
+                const currentPageId = editor.getCurrentPageId();
+                if (currentPageId.includes("page:IA")) {
+                    editor.zoomToFit({ force: true, immediate: true }).setCameraOptions({ isLocked: true });
+                }
+            });
         };
 
-        // Subscribe to the editor's content changes
-        editor.on("change", handleContentChange);
+        // Register the event listener
+        const cleanupFunction = editor.store.listen(handleChangeEvent, {
+            scope: "all",
+            source: "all",
+        });
 
-        // Clean up subscription on unmount
         return () => {
-            editor.off("change", handleContentChange);
+            cleanupFunction();
         };
     };
 
