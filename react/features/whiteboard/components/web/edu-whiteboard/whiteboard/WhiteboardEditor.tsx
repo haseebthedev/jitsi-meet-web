@@ -57,8 +57,8 @@ export const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({
     const [editor, setEditor] = useState<Editor | null>(null);
     const roomId = `${classId}-${occupantId}`;
 
-    // const store = useSyncDemo({ roomId });
-    const store = useSync({ uri: `${WORKER_URL}/connect/${roomId}`, assets: multiplayerAssets });
+    const store = useSyncDemo({ roomId });
+    // const store = useSync({ uri: `${WORKER_URL}/connect/${roomId}`, assets: multiplayerAssets });
 
     useEffect(() => {
         previewModeRef.current = previewMode;
