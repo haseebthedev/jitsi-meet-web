@@ -20,14 +20,14 @@ const Sidebar = ({ iamModerator, occupants, onPreviewClick, editorsRef, classId 
 
     const handleEditorMount = (editor: Editor) => {
         // const handleContentChange = () => {
-        //     editor.zoomToFit();
+        //     editor.zoomToFit({ force: true, immediate: true });
         //     console.log("applyingToZoomToFit...");
         // };
 
         // // Subscribe to the editor's content changes
         // editor.on("change", handleContentChange);
 
-        // // Clean up subscription on unmount
+        // Clean up subscription on unmount
         // return () => {
         //     editor.off("change", handleContentChange);
         // };
@@ -55,6 +55,7 @@ const Sidebar = ({ iamModerator, occupants, onPreviewClick, editorsRef, classId 
 
         return () => {
             cleanupFunction();
+            // editor.off("change", handleContentChange);
         };
     };
 
@@ -75,7 +76,7 @@ const Sidebar = ({ iamModerator, occupants, onPreviewClick, editorsRef, classId 
                                 </button>
                             </div>
 
-                            <div className="sidebar__item__content" style={{ zoom: 1.48 }}>
+                            <div className="sidebar__item__content">
                                 <div className="overlay" />
                                 <WhiteboardEditor
                                     classId={classId}
@@ -87,6 +88,28 @@ const Sidebar = ({ iamModerator, occupants, onPreviewClick, editorsRef, classId 
                                     onMount={(editor) => {
                                         editorsRef?.current.set(String(occupant?.name).toLowerCase(), editor);
                                         handleEditorMount(editor);
+
+                                        editor.zoomToFit({ force: true });
+                                    }}
+                                    cameraOptions={{
+                                        isLocked: true,
+                                        wheelBehavior: "none",
+                                        panSpeed: 0,
+                                        zoomSpeed: 0,
+                                        zoomSteps: [1],
+                                        constraints: {
+                                            initialZoom: "fit-x-100",
+                                            baseZoom: "fit-x-100",
+                                            bounds: {
+                                                x: 0,
+                                                y: 0,
+                                                w: 1920,
+                                                h: 1080,
+                                            },
+                                            behavior: { x: "contain", y: "contain" },
+                                            padding: { x: 0, y: 0 },
+                                            origin: { x: 0, y: 0 },
+                                        },
                                     }}
                                 />
                             </div>
