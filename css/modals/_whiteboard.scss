@@ -1,4 +1,12 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap");
+
 .whiteboard-container {
+    .tl-text {
+        font-family: "Nunito", serif !important;
+        font-weight: 400 !important;
+        font-style: normal !important;
+    }
+
     .tl-watermark_SEE-LICENSE {
         display: none !important;
     }
