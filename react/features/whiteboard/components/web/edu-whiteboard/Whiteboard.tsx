@@ -264,22 +264,14 @@ const WhiteboardApp = () => {
                             autoFocus={false}
                             previewMode={true}
                             onMount={(editor) => {
-                                // editor.zoomToFit({ force: true, immediate: true });
-                                const snapshot = getSnapshot(editor?.store as any);
+                                const selectedEditor = editorsRef?.current.get(
+                                    String(participantPreview).toLowerCase()
+                                );
 
+                                const snapshot = getSnapshot(selectedEditor?.store as any);
                                 loadSnapshot(editor.store, snapshot);
 
-                                const handleChangeEvent = () => {
-                                    editor
-                                        .zoomToFit({ force: true, immediate: true })
-                                        .setCameraOptions({ isLocked: true });
-                                };
-
-                                // Register the event listener
-                                editor.store.listen(handleChangeEvent, {
-                                    scope: "all",
-                                    source: "all",
-                                });
+                                editor.zoomToFit({ force: true });
                             }}
                         />
                     </div>
