@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { debounce } from "lodash";
-import { useSync, useSyncDemo } from "@tldraw/sync";
+import React, { useEffect, useState } from "react";
+import { useSyncDemo } from "@tldraw/sync";
 import {
     Tldraw,
     Editor,
@@ -23,10 +22,6 @@ import Icon from "../../../../../base/icons/components/Icon";
 import { IconTrash, IconUndo, IconRedo } from "../../../../../base/icons/svg";
 import { extractPresentationIdFromSlideUrl } from "../utils";
 import "tldraw/tldraw.css";
-import { WORKER_URL } from "../constants";
-
-// @ts-ignore
-const isInstanceRecord = (record: TLRecord): record is { currentPageId: string } => "currentPageId" in record;
 
 interface WhiteboardEditorProps extends Omit<TldrawProps, "onMount"> {
     iamModerator?: boolean;
@@ -53,16 +48,11 @@ export const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({
     onMount,
     ...rest
 }) => {
-    const previewModeRef = useRef(previewMode);
     const [editor, setEditor] = useState<Editor | null>(null);
     const roomId = `${classId}-${occupantId}`;
 
     const store = useSyncDemo({ roomId });
     // const store = useSync({ uri: `${WORKER_URL}/connect/${roomId}`, assets: multiplayerAssets });
-
-    useEffect(() => {
-        previewModeRef.current = previewMode;
-    }, [previewMode]);
 
     const UploadSlideDialog = ({ onClose }: { onClose(): void }) => {
         const [link, setLink] = useState<string | null>(null);
@@ -240,22 +230,7 @@ export const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({
         if (!editor) return;
 
         const handleChangeEvent = (change: any) => {
-            // Skip processing if preview mode is enabled
-            // if (previewMode || previewModeRef?.current) {
-            //     return;
-            // }
-
             Object.values(change.changes.updated).forEach(([from, to]: any) => {
-                // Sync page changes only if not in preview mode
-                // if (isInstanceRecord(from) && isInstanceRecord(to) && from.currentPageId !== to.currentPageId) {
-                //     // if (previewMode || previewModeRef?.current === true) {
-                //     //     return;
-                //     // }
-
-                //     // @ts-ignore
-                //     editor.setCurrentPage(to.currentPageId);
-                // }
-
                 const currentPageId = editor.getCurrentPageId();
                 if (currentPageId.includes("page:IA") || isInSidebar) {
                     editor.zoomToFit({ force: true, immediate: true }).setCameraOptions({ isLocked: true });
@@ -273,37 +248,25 @@ export const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({
         return () => {
             cleanupFunction();
         };
-    }, [editor, previewMode, isInSidebar]);
+    }, [editor, isInSidebar]);
 
     const components: TLComponents = {
         ...{
-            SharePanel: previewMode
-                ? null
-                : iamModerator
-                ? CustomSharePanelForModerator
-                : CustomSharePanelForParticipant,
+            SharePanel: iamModerator ? CustomSharePanelForModerator : CustomSharePanelForParticipant,
             Minimap: null,
             ZoomMenu: null,
         },
-        ...(previewMode && !iamModerator ? { Toolbar: null, MainMenu: null } : {}),
     };
 
     return (
         <Tldraw
             store={store}
-            autoFocus={!previewModeRef?.current}
             forceMobile={true}
             components={components}
             onMount={(editor) => {
                 setEditor(editor);
                 editor.registerExternalAssetHandler("url", unfurlBookmarkUrl);
                 if (onMount) onMount(editor);
-
-                // Making editor readonly for preview mode
-                // if (previewMode && !iamModerator) {
-                //     editor.updateInstanceState({ isReadonly: true });
-                //     // editor.updateInstanceState({ isReadonly: true, isToolLocked: true });
-                // }
             }}
             {...rest}
         />

@@ -1,32 +1,32 @@
-import React, { useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
-import { connect, useDispatch, useSelector } from 'react-redux';
-import { makeStyles } from 'tss-react/mui';
+import React, { useCallback } from "react";
+import { useTranslation } from "react-i18next";
+import { connect, useDispatch, useSelector } from "react-redux";
+import { makeStyles } from "tss-react/mui";
 
-import { IReduxState } from '../../../app/types';
-import { rejectParticipantAudio, rejectParticipantVideo } from '../../../av-moderation/actions';
-import participantsPaneTheme from '../../../base/components/themes/participantsPaneTheme.json';
-import { MEDIA_TYPE } from '../../../base/media/constants';
-import { getParticipantById, isScreenShareParticipant } from '../../../base/participants/functions';
-import { withPixelLineHeight } from '../../../base/styles/functions.web';
-import Input from '../../../base/ui/components/web/Input';
-import useContextMenu from '../../../base/ui/hooks/useContextMenu.web';
-import { normalizeAccents } from '../../../base/util/strings.web';
-import { getBreakoutRooms, getCurrentRoomId, isInBreakoutRoom } from '../../../breakout-rooms/functions';
-import { isButtonEnabled, showOverflowDrawer } from '../../../toolbox/functions.web';
-import { muteRemote } from '../../../video-menu/actions.web';
-import { getSortedParticipantIds, isCurrentRoomRenamable, shouldRenderInviteButton } from '../../functions';
-import { useParticipantDrawer } from '../../hooks';
-import RenameButton from '../breakout-rooms/components/web/RenameButton';
+import { IReduxState } from "../../../app/types";
+import { rejectParticipantAudio, rejectParticipantVideo } from "../../../av-moderation/actions";
+import participantsPaneTheme from "../../../base/components/themes/participantsPaneTheme.json";
+import { MEDIA_TYPE } from "../../../base/media/constants";
+import { getParticipantById, isScreenShareParticipant } from "../../../base/participants/functions";
+import { withPixelLineHeight } from "../../../base/styles/functions.web";
+import Input from "../../../base/ui/components/web/Input";
+import useContextMenu from "../../../base/ui/hooks/useContextMenu.web";
+import { normalizeAccents } from "../../../base/util/strings.web";
+import { getBreakoutRooms, getCurrentRoomId, isInBreakoutRoom } from "../../../breakout-rooms/functions";
+import { isButtonEnabled, showOverflowDrawer } from "../../../toolbox/functions.web";
+import { muteRemote } from "../../../video-menu/actions.web";
+import { getSortedParticipantIds, isCurrentRoomRenamable, shouldRenderInviteButton } from "../../functions";
+import { useParticipantDrawer } from "../../hooks";
+import RenameButton from "../breakout-rooms/components/web/RenameButton";
 
-import { InviteButton } from './InviteButton';
-import MeetingParticipantContextMenu from './MeetingParticipantContextMenu';
-import MeetingParticipantItems from './MeetingParticipantItems';
+import { InviteButton } from "./InviteButton";
+import MeetingParticipantContextMenu from "./MeetingParticipantContextMenu";
+import MeetingParticipantItems from "./MeetingParticipantItems";
 
-const useStyles = makeStyles()(theme => {
+const useStyles = makeStyles()((theme) => {
     return {
         headingW: {
-            color: theme.palette.warning02
+            color: theme.palette.warning02,
         },
         heading: {
             color: theme.palette.text02,
@@ -34,18 +34,18 @@ const useStyles = makeStyles()(theme => {
             marginBottom: theme.spacing(3),
 
             [`@media(max-width: ${participantsPaneTheme.MD_BREAKPOINT})`]: {
-                ...withPixelLineHeight(theme.typography.bodyShortBoldLarge)
-            }
+                ...withPixelLineHeight(theme.typography.bodyShortBoldLarge),
+            },
         },
 
         search: {
             margin: `${theme.spacing(3)} 0`,
 
-            '& input': {
-                textAlign: 'center',
-                paddingRight: '16px'
-            }
-        }
+            "& input": {
+                textAlign: "center",
+                paddingRight: "16px",
+            },
+        },
     };
 });
 
@@ -79,21 +79,27 @@ function MeetingParticipants({
     searchString,
     setSearchString,
     showInviteButton,
-    sortedParticipantIds = []
+    sortedParticipantIds = [],
 }: IProps) {
     const dispatch = useDispatch();
     const { t } = useTranslation();
 
-    const [ lowerMenu, , toggleMenu, menuEnter, menuLeave, raiseContext ] = useContextMenu<string>();
-    const muteAudio = useCallback(id => () => {
-        dispatch(muteRemote(id, MEDIA_TYPE.AUDIO));
-        dispatch(rejectParticipantAudio(id));
-    }, [ dispatch ]);
-    const stopVideo = useCallback(id => () => {
-        dispatch(muteRemote(id, MEDIA_TYPE.VIDEO));
-        dispatch(rejectParticipantVideo(id));
-    }, [ dispatch ]);
-    const [ drawerParticipant, closeDrawer, openDrawerForParticipant ] = useParticipantDrawer();
+    const [lowerMenu, , toggleMenu, menuEnter, menuLeave, raiseContext] = useContextMenu<string>();
+    const muteAudio = useCallback(
+        (id) => () => {
+            dispatch(muteRemote(id, MEDIA_TYPE.AUDIO));
+            dispatch(rejectParticipantAudio(id));
+        },
+        [dispatch]
+    );
+    const stopVideo = useCallback(
+        (id) => () => {
+            dispatch(muteRemote(id, MEDIA_TYPE.VIDEO));
+            dispatch(rejectParticipantVideo(id));
+        },
+        [dispatch]
+    );
+    const [drawerParticipant, closeDrawer, openDrawerForParticipant] = useParticipantDrawer();
 
     // FIXME:
     // It seems that useTranslation is not very scalable. Unmount 500 components that have the useTranslation hook is
@@ -101,8 +107,8 @@ function MeetingParticipants({
     // solution!!!
     // One potential proper fix would be to use react-window component in order to lower the number of components
     // mounted.
-    const participantActionEllipsisLabel = t('participantsPane.actions.moreParticipantOptions');
-    const youText = t('chat.you');
+    const participantActionEllipsisLabel = t("participantsPane.actions.moreParticipantOptions");
+    const youText = t("chat.you");
     const isBreakoutRoom = useSelector(isInBreakoutRoom);
     const _isCurrentRoomRenamable = useSelector(isCurrentRoomRenamable);
 
@@ -110,55 +116,54 @@ function MeetingParticipants({
 
     return (
         <>
-            <span
-                aria-level = { 1 }
-                className = 'sr-only'
-                role = 'heading'>
-                { t('participantsPane.title') }
+            <span aria-level={1} className="sr-only" role="heading">
+                {t("participantsPane.title")}
             </span>
-            <div className = { styles.heading }>
+            <div className={styles.heading}>
                 {currentRoom?.name
                     ? `${currentRoom.name} (${participantsCount})`
-                    : t('participantsPane.headings.participantsList', { count: participantsCount })}
-                { currentRoom?.name && _isCurrentRoomRenamable
-                    && <RenameButton
-                        breakoutRoomJid = { currentRoom?.jid }
-                        name = { currentRoom?.name } /> }
+                    : t("participantsPane.headings.participantsList", { count: participantsCount })}
+                {currentRoom?.name && _isCurrentRoomRenamable && (
+                    <RenameButton breakoutRoomJid={currentRoom?.jid} name={currentRoom?.name} />
+                )}
             </div>
             {showInviteButton && <InviteButton />}
             <Input
-                accessibilityLabel = { t('participantsPane.search') }
-                className = { styles.search }
-                clearable = { true }
-                id = 'participants-search-input'
-                onChange = { setSearchString }
-                placeholder = { t('participantsPane.search') }
-                value = { searchString } />
+                accessibilityLabel={t("participantsPane.search")}
+                className={styles.search}
+                clearable={true}
+                id="participants-search-input"
+                onChange={setSearchString}
+                placeholder={t("participantsPane.search")}
+                value={searchString}
+            />
             <div>
                 <MeetingParticipantItems
-                    isInBreakoutRoom = { isBreakoutRoom }
-                    lowerMenu = { lowerMenu }
-                    muteAudio = { muteAudio }
-                    openDrawerForParticipant = { openDrawerForParticipant }
-                    overflowDrawer = { overflowDrawer }
-                    participantActionEllipsisLabel = { participantActionEllipsisLabel }
-                    participantIds = { sortedParticipantIds }
-                    raiseContextId = { raiseContext.entity }
-                    searchString = { normalizeAccents(searchString) }
-                    stopVideo = { stopVideo }
-                    toggleMenu = { toggleMenu }
-                    youText = { youText } />
+                    isInBreakoutRoom={isBreakoutRoom}
+                    lowerMenu={lowerMenu}
+                    muteAudio={muteAudio}
+                    openDrawerForParticipant={openDrawerForParticipant}
+                    overflowDrawer={overflowDrawer}
+                    participantActionEllipsisLabel={participantActionEllipsisLabel}
+                    participantIds={sortedParticipantIds}
+                    raiseContextId={raiseContext.entity}
+                    searchString={normalizeAccents(searchString)}
+                    stopVideo={stopVideo}
+                    toggleMenu={toggleMenu}
+                    youText={youText}
+                />
             </div>
             <MeetingParticipantContextMenu
-                closeDrawer = { closeDrawer }
-                drawerParticipant = { drawerParticipant }
-                muteAudio = { muteAudio }
-                offsetTarget = { raiseContext?.offsetTarget }
-                onEnter = { menuEnter }
-                onLeave = { menuLeave }
-                onSelect = { lowerMenu }
-                overflowDrawer = { overflowDrawer }
-                participantID = { raiseContext?.entity } />
+                closeDrawer={closeDrawer}
+                drawerParticipant={drawerParticipant}
+                muteAudio={muteAudio}
+                offsetTarget={raiseContext?.offsetTarget}
+                onEnter={menuEnter}
+                onLeave={menuLeave}
+                onSelect={lowerMenu}
+                overflowDrawer={overflowDrawer}
+                participantID={raiseContext?.entity}
+            />
         </>
     );
 }
@@ -183,7 +188,7 @@ function _mapStateToProps(state: IReduxState) {
     });
 
     const participantsCount = sortedParticipantIds.length;
-    const showInviteButton = shouldRenderInviteButton(state) && isButtonEnabled('invite', state);
+    const showInviteButton = shouldRenderInviteButton(state) && isButtonEnabled("invite", state);
     const overflowDrawer = showOverflowDrawer(state);
     const currentRoomId = getCurrentRoomId(state);
     const currentRoom = getBreakoutRooms(state)[currentRoomId];
@@ -193,7 +198,7 @@ function _mapStateToProps(state: IReduxState) {
         overflowDrawer,
         participantsCount,
         showInviteButton,
-        sortedParticipantIds
+        sortedParticipantIds,
     };
 }
 

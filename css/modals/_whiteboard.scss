@@ -5,6 +5,7 @@
         font-family: "Nunito", serif !important;
         font-weight: 400 !important;
         font-style: normal !important;
+        font-size: 24px !important;
     }
 
     .tl-watermark_SEE-LICENSE {
@@ -77,6 +78,10 @@
     .tlui-toolbar__tools__list .tlui-button[data-value="hand"],
     .tlui-toolbar__tools__list .tlui-button[data-value="note"] {
         display: none;
+    }
+
+    .hide-eraser-button .tlui-toolbar__tools__list .tlui-button[data-value="eraser"] {
+        display: none !important;
     }
 
     // .tlui-toolbar__extras__controls {

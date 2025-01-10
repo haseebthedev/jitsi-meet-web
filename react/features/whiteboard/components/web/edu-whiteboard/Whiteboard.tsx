@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { WhiteboardEditor } from "./whiteboard/WhiteboardEditor";
 import { Sidebar } from "./WhiteboardSidebar";
-import { AssetRecordType, createShapeId, Editor, TLImageShape, transact, TLFrameShape } from "tldraw";
+import { AssetRecordType, createShapeId, Editor, getSnapshot, loadSnapshot, TLImageShape, transact } from "tldraw";
 import { useSelector } from "react-redux";
 import { IReduxState } from "../../../../app/types";
 import { isLocalParticipantModerator } from "../../../../base/participants/functions";
@@ -12,41 +12,32 @@ const WhiteboardApp = () => {
 
     const state = useSelector((state: IReduxState) => state);
 
-    const { local, remote } = useSelector((state: IReduxState) => state["features/base/participants"]);
     const { room } = useSelector((state: IReduxState) => state["features/base/conference"]);
+    const { local, remote } = useSelector((state: IReduxState) => state["features/base/participants"]);
 
     const iamModerator = isLocalParticipantModerator(state);
 
     const [isLoading, setIsLoading] = useState(true);
-    const [participants, setParticipants] = useState([]);
     const [participantPreview, setParticipantPreview] = useState<string | null>(null);
 
     // Initialize participants with the local participant
-    useEffect(() => {
-        if (local) {
-            setParticipants([local] as any);
-        }
-    }, [local]);
 
-    useEffect(() => {
-        if (room && remote) {
-            console.log("remote ==== ", remote);
+    const participants = useMemo(() => {
+        if (!local || !remote) return [];
 
-            // Track existing IDs
-            // @ts-ignore
-            const uniqueParticipants = new Set(participants.map((p) => String(p?.name).toLowerCase()));
+        const participantList = new Map();
 
-            remote.forEach((value, key) => {
-                if (
-                    !uniqueParticipants.has(String(value.name).toLowerCase()) &&
-                    (value.role === "moderator" || value.role === "participant")
-                ) {
-                    setParticipants((prev) => [...prev, value] as any);
-                    uniqueParticipants.add(String(value.name).toLowerCase());
+        if (remote) {
+            remote.forEach((value) => {
+                if (value.role === "moderator" || value.role === "participant") {
+                    // @ts-ignore
+                    participantList.set(value.name.toLowerCase(), value);
                 }
             });
         }
-    }, [state, room, remote]);
+
+        return Array.from(participantList.values());
+    }, [state, local, remote]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -182,8 +173,6 @@ const WhiteboardApp = () => {
         });
     };
 
-    // const handleClosePreview = () => setParticipantPreview(null);
-
     const handleClosePreview = (occupantId: string) => {
         const editor = editorsRef.current.get(occupantId);
         if (editor) {
@@ -243,6 +232,7 @@ const WhiteboardApp = () => {
                         onClearPage={handleClearUserContent}
                         onMount={(editor) => {
                             editorsRef.current.set(String(local?.name?.toLowerCase()), editor);
+                            editor.setCameraOptions({ isLocked: true });
                         }}
                     />
                 </div>
@@ -266,16 +256,31 @@ const WhiteboardApp = () => {
                     >
                         Go Back
                     </button>
-                    <div className="fullscreen-editor">
+                    <div className={`fullscreen-editor ${!iamModerator ? "hide-eraser-button" : ""}`}>
                         <WhiteboardEditor
                             classId={room}
                             iamModerator={iamModerator}
                             occupantId={participantPreview}
                             autoFocus={false}
                             previewMode={true}
-                            // onMount={(editor) => {
-                            //     editor.zoomToFit({ force: true, immediate: true });
-                            // }}
+                            onMount={(editor) => {
+                                // editor.zoomToFit({ force: true, immediate: true });
+                                const snapshot = getSnapshot(editor?.store as any);
+
+                                loadSnapshot(editor.store, snapshot);
+
+                                const handleChangeEvent = () => {
+                                    editor
+                                        .zoomToFit({ force: true, immediate: true })
+                                        .setCameraOptions({ isLocked: true });
+                                };
+
+                                // Register the event listener
+                                editor.store.listen(handleChangeEvent, {
+                                    scope: "all",
+                                    source: "all",
+                                });
+                            }}
                         />
                     </div>
                 </div>

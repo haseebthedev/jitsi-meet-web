@@ -91,6 +91,7 @@ const Sidebar = ({ iamModerator, occupants, onPreviewClick, editorsRef, classId 
 
                                         editor.zoomToFit({ force: true });
                                     }}
+                                    previewMode={true}
                                     cameraOptions={{
                                         isLocked: true,
                                         wheelBehavior: "none",
