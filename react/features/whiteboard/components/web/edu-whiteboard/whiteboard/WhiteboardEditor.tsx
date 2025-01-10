@@ -6,7 +6,6 @@ import {
     TLComponents,
     TldrawProps,
     useDialogs,
-    TLRecord,
     TldrawUiDialogHeader,
     TldrawUiDialogTitle,
     TldrawUiDialogCloseButton,
@@ -15,8 +14,6 @@ import {
     TldrawUiButton,
     TldrawUiButtonLabel,
     TldrawUiInput,
-    loadSessionStateSnapshotIntoStore,
-    loadSnapshot,
 } from "tldraw";
 import { multiplayerAssets, unfurlBookmarkUrl } from "./useSyncStore";
 import { processSlideUrl } from "./api";
