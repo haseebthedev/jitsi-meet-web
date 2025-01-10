@@ -21,7 +21,6 @@ const WhiteboardApp = () => {
     const [participantPreview, setParticipantPreview] = useState<string | null>(null);
 
     // Initialize participants with the local participant
-
     const participants = useMemo(() => {
         if (!local || !remote) return [];
 
