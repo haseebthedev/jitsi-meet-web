@@ -1,5 +1,5 @@
 import React from "react";
-import { Editor } from "tldraw";
+import { Editor, StoreListener, TLRecord } from "tldraw";
 import { WhiteboardEditor } from "./whiteboard/WhiteboardEditor";
 
 interface SidebarI {
@@ -19,22 +19,15 @@ const Sidebar = ({ iamModerator, occupants, onPreviewClick, editorsRef, classId 
         : occupants.filter((el) => el.role === "moderator"); // Show tutor for students
 
     const handleEditorMount = (editor: Editor) => {
-        // const handleContentChange = () => {
-        //     editor.zoomToFit({ force: true, immediate: true });
-        //     console.log("applyingToZoomToFit...");
-        // };
-
-        // // Subscribe to the editor's content changes
-        // editor.on("change", handleContentChange);
-
-        // Clean up subscription on unmount
-        // return () => {
-        //     editor.off("change", handleContentChange);
-        // };
-
         const handleChangeEvent = (change: any) => {
-            Object.values(change.changes.updated).forEach(([from, to]: any) => {
-                // Sync page changes only if not in preview mode
+            const { added, updated, removed } = change.changes;
+
+            added && console.log("Added:", added);
+            updated && console.log("Updated:", updated);
+            removed && console.log("Removed:", removed);
+
+            // Process updated changes
+            Object.values(updated).forEach(([from, to]: any) => {
                 if (isInstanceRecord(from) && isInstanceRecord(to) && from.currentPageId !== to.currentPageId) {
                     // @ts-ignore
                     editor.setCurrentPage(to.currentPageId);
@@ -47,7 +40,6 @@ const Sidebar = ({ iamModerator, occupants, onPreviewClick, editorsRef, classId 
             });
         };
 
-        // Register the event listener
         const cleanupFunction = editor.store.listen(handleChangeEvent, {
             scope: "all",
             source: "all",
@@ -79,6 +71,7 @@ const Sidebar = ({ iamModerator, occupants, onPreviewClick, editorsRef, classId 
                             <div className="sidebar__item__content">
                                 <div className="overlay" />
                                 <WhiteboardEditor
+                                    key={String(occupant?.name).toLowerCase()}
                                     classId={classId}
                                     occupantId={String(occupant?.name).toLowerCase()}
                                     className="whiteboard-editor"

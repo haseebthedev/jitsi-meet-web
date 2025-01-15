@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { useSyncDemo } from "@tldraw/sync";
 import {
     Tldraw,
@@ -14,6 +14,8 @@ import {
     TldrawUiButton,
     TldrawUiButtonLabel,
     TldrawUiInput,
+    DefaultSizeStyle,
+    DefaultFontStyle,
 } from "tldraw";
 import { multiplayerAssets, unfurlBookmarkUrl } from "./useSyncStore";
 import { processSlideUrl } from "./api";
@@ -237,9 +239,7 @@ export const WhiteboardEditor: React.FC<WhiteboardEditorProps> = memo(
             );
         };
 
-        useEffect(() => {
-            if (!editor) return;
-
+        const renameDefaultPageonLoad = (editor: Editor) => {
             // Get all pages in the editor
             const pages = editor.getPages();
 
@@ -255,6 +255,21 @@ export const WhiteboardEditor: React.FC<WhiteboardEditorProps> = memo(
                     editor.renamePage(currentPage.id, "Whiteboard");
                 }
             }
+        };
+
+        const setDefaultFontStyling = (editor: Editor) => {
+            editor?.setStyleForNextShapes(DefaultSizeStyle, "l", { history: "ignore" });
+            editor?.setStyleForNextShapes(DefaultFontStyle, "sans", { history: "ignore" });
+        };
+
+        useEffect(() => {
+            if (!editor) return;
+
+            // Setting default font stylings
+            setDefaultFontStyling(editor);
+
+            // Renaming default page name
+            renameDefaultPageonLoad(editor);
         }, [editor]);
 
         useEffect(() => {
@@ -297,6 +312,7 @@ export const WhiteboardEditor: React.FC<WhiteboardEditorProps> = memo(
                 onMount={(editor) => {
                     setEditor(editor);
                     editor.registerExternalAssetHandler("url", unfurlBookmarkUrl);
+
                     if (onMount) onMount(editor);
                 }}
                 {...rest}
