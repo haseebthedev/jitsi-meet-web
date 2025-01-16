@@ -1,7 +1,16 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { WhiteboardEditor } from "./whiteboard/WhiteboardEditor";
 import { Sidebar } from "./WhiteboardSidebar";
-import { AssetRecordType, createShapeId, Editor, getSnapshot, loadSnapshot, TLImageShape, transact } from "tldraw";
+import {
+    AssetRecordType,
+    createShapeId,
+    Editor,
+    getSnapshot,
+    loadSnapshot,
+    TLEditorSnapshot,
+    TLImageShape,
+    transact,
+} from "tldraw";
 import { useSelector } from "react-redux";
 import { IReduxState } from "../../../../app/types";
 import { isLocalParticipantModerator } from "../../../../base/participants/functions";
@@ -267,8 +276,12 @@ const WhiteboardApp = () => {
                                     String(participantPreview).toLowerCase()
                                 );
 
-                                const snapshot = getSnapshot(selectedEditor?.store as any);
-                                loadSnapshot(editor.store, snapshot);
+                                const snapshot: TLEditorSnapshot = getSnapshot(selectedEditor?.store as any);
+                                const currentPageId = snapshot?.session?.currentPageId;
+
+                                // Setting Remote user pageId to preview whiteboard page
+                                if (currentPageId) editor.setCurrentPage(currentPageId);
+                                // loadSnapshot(editor.store, snapshot);
 
                                 editor.zoomToFit({ force: true });
                             }}
