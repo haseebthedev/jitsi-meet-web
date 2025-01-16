@@ -301,6 +301,7 @@ export const WhiteboardEditor: React.FC<WhiteboardEditorProps> = memo(
                 SharePanel: iamModerator ? CustomSharePanelForModerator : CustomSharePanelForParticipant,
                 Minimap: null,
                 ZoomMenu: null,
+                ...(previewMode && !iamModerator && { PageMenu: null }),
             },
         };
 
