@@ -280,10 +280,37 @@ const WhiteboardApp = () => {
                                 const currentPageId = snapshot?.session?.currentPageId;
 
                                 // Setting Remote user pageId to preview whiteboard page
-                                if (currentPageId) editor.setCurrentPage(currentPageId);
-                                // loadSnapshot(editor.store, snapshot);
+                                if (currentPageId) {
+                                    editor.setCurrentPage(currentPageId);
 
-                                editor.zoomToFit({ force: true });
+                                    if (currentPageId.includes("page:IA")) {
+                                        editor
+                                            .zoomToFit({ force: true, immediate: true })
+                                            .setCameraOptions({ isLocked: true });
+                                        return;
+                                    }
+                                }
+
+                                editor.setCameraOptions({
+                                    isLocked: false,
+                                    wheelBehavior: "none",
+                                    panSpeed: 0,
+                                    zoomSpeed: 0,
+                                    zoomSteps: [1],
+                                    constraints: {
+                                        initialZoom: "fit-x-100",
+                                        baseZoom: "fit-x-100",
+                                        bounds: {
+                                            x: 0,
+                                            y: 0,
+                                            w: 1920,
+                                            h: 1080,
+                                        },
+                                        behavior: { x: "contain", y: "contain" },
+                                        padding: { x: 0, y: 0 },
+                                        origin: { x: 0, y: 0 },
+                                    },
+                                });
                             }}
                         />
                     </div>

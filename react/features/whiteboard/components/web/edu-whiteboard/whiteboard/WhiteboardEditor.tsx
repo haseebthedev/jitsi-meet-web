@@ -278,8 +278,11 @@ export const WhiteboardEditor: React.FC<WhiteboardEditorProps> = memo(
             const handleChangeEvent = (change: any) => {
                 Object.values(change.changes.updated).forEach(([from, to]: any) => {
                     const currentPageId = editor.getCurrentPageId();
-                    if (currentPageId.includes("page:IA") || isInSidebar || previewMode) {
+                    // if (currentPageId.includes("page:IA") || isInSidebar || previewMode) {
+                    if (currentPageId.includes("page:IA") || isInSidebar) {
                         editor.zoomToFit({ force: true, immediate: true }).setCameraOptions({ isLocked: true });
+                    } else {
+                        editor.setCameraOptions({ isLocked: false });
                     }
                 });
             };
