@@ -1,5 +1,5 @@
 import React from "react";
-import { Editor, StoreListener, TLRecord } from "tldraw";
+import { Editor, TLRecord } from "tldraw";
 import { WhiteboardEditor } from "./whiteboard/WhiteboardEditor";
 
 interface SidebarI {
@@ -35,7 +35,7 @@ const Sidebar = ({ iamModerator, occupants, onPreviewClick, editorsRef, classId 
 
                 const currentPageId = editor.getCurrentPageId();
                 if (currentPageId.includes("page:IA")) {
-                    editor.zoomToFit({ force: true, immediate: true }).setCameraOptions({ isLocked: true });
+                    editor.zoomToFit({ force: true, immediate: true });
                 }
             });
         };
@@ -47,7 +47,6 @@ const Sidebar = ({ iamModerator, occupants, onPreviewClick, editorsRef, classId 
 
         return () => {
             cleanupFunction();
-            // editor.off("change", handleContentChange);
         };
     };
 

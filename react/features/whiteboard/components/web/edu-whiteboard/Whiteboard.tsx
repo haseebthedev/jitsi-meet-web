@@ -1,16 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { WhiteboardEditor } from "./whiteboard/WhiteboardEditor";
 import { Sidebar } from "./WhiteboardSidebar";
-import {
-    AssetRecordType,
-    createShapeId,
-    Editor,
-    getSnapshot,
-    loadSnapshot,
-    TLEditorSnapshot,
-    TLImageShape,
-    transact,
-} from "tldraw";
+import { AssetRecordType, createShapeId, Editor, getSnapshot, TLEditorSnapshot, TLImageShape, transact } from "tldraw";
 import { useSelector } from "react-redux";
 import { IReduxState } from "../../../../app/types";
 import { isLocalParticipantModerator } from "../../../../base/participants/functions";
@@ -272,6 +263,8 @@ const WhiteboardApp = () => {
                             autoFocus={false}
                             previewMode={true}
                             onMount={(editor) => {
+                                editor.focus();
+
                                 const selectedEditor = editorsRef?.current.get(
                                     String(participantPreview).toLowerCase()
                                 );
@@ -290,27 +283,7 @@ const WhiteboardApp = () => {
                                         return;
                                     }
                                 }
-
-                                editor.setCameraOptions({
-                                    isLocked: false,
-                                    wheelBehavior: "none",
-                                    panSpeed: 0,
-                                    zoomSpeed: 0,
-                                    zoomSteps: [1],
-                                    constraints: {
-                                        initialZoom: "fit-x-100",
-                                        baseZoom: "fit-x-100",
-                                        bounds: {
-                                            x: 0,
-                                            y: 0,
-                                            w: 1920,
-                                            h: 1080,
-                                        },
-                                        behavior: { x: "contain", y: "contain" },
-                                        padding: { x: 0, y: 0 },
-                                        origin: { x: 0, y: 0 },
-                                    },
-                                });
+                                editor.setCameraOptions({ isLocked: false });
                             }}
                         />
                     </div>
