@@ -16,6 +16,7 @@ import {
     TldrawUiInput,
     DefaultSizeStyle,
     DefaultFontStyle,
+    TLUiEventHandler,
 } from "tldraw";
 import { multiplayerAssets, unfurlBookmarkUrl } from "./useSyncStore";
 import { processSlideUrl } from "./api";
@@ -308,11 +309,20 @@ export const WhiteboardEditor: React.FC<WhiteboardEditorProps> = memo(
             },
         };
 
+        const onUiEvent: TLUiEventHandler = (name) => {
+            // For enforcing manual back-to-content logic
+            if (name.toString() === "zoom-to-content") {
+                editor?.zoomToFit({ force: true, immediate: true });
+                editor?.resetZoom();
+            }
+        };
+
         return (
             <Tldraw
                 store={store}
                 forceMobile={true}
                 components={components}
+                onUiEvent={onUiEvent}
                 onMount={(editor) => {
                     setEditor(editor);
                     editor.registerExternalAssetHandler("url", unfurlBookmarkUrl);
